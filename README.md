@@ -2,7 +2,6 @@
 
 PathwayGen is a JavaScript library for generating interactive metabolic pathway diagrams with SVG. It specializes in creating visual representations of biochemical pathways, including compounds, enzymes, and their relationships.
 
-![Example Pathway](placeholder-for-screenshot.png)
 
 ## Features
 
