@@ -23,50 +23,53 @@ export class PathwayGenerator {
         y: startY + length * Math.cos(radians)
       };
     }
-  
-    calculatePositions(nodes) {
-      const positions = new Map();
-      
-      nodes.forEach((node, index) => {
-        const centerX = this.config.width / 2;
-        const centerY = this.config.verticalSpacing + (index * this.config.verticalSpacing * 2);
-        
-        // Main node position
-        positions.set(node.id, {
-          x: centerX,
-          y: centerY
-        });
-        
-        // Handle branches if they exist
-        if (node.branches) {
-          node.branches.forEach((branch, branchIndex) => {
-            const angle = branch.angle || (branchIndex % 2 === 0 ? this.config.branchAngle : -this.config.branchAngle);
-            const length = branch.length || this.config.verticalSpacing * 1.5;
+    
+      calculatePositions(nodes) {
+          const positions = new Map();
+          
+          nodes.forEach((node, index) => {
+            const centerX = this.config.width / 2;
+            const centerY = this.config.verticalSpacing + (index * this.config.verticalSpacing * 2);
             
-            // Calculate branch end position
-            const endPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length);
-            positions.set(`${node.id}-branch-${branchIndex}`, endPoint);
+            positions.set(node.id, {
+              x: centerX,
+              y: centerY
+            });
             
-            // Calculate intermediate square position (middle of branch)
-            const midPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length / 2);
-            positions.set(`${node.id}-branch-${branchIndex}-intermediate`, midPoint);
-            
-            // Calculate enzyme positions for this branch
-            if (branch.enzymes) {
-              branch.enzymes.forEach((enzyme, eIdx) => {
-                const enzymeAngle = angle + (eIdx % 2 === 0 ? 90 : -90);
-                const enzymeOffset = this.config.horizontalSpacing / 2;
-                const enzymePos = this.calculateBranchEndpoint(
-                  midPoint.x,
-                  midPoint.y,
-                  enzymeAngle,
-                  enzymeOffset
-                );
-                positions.set(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`, enzymePos);
+            // Handle branches
+            if (node.branches) {
+              node.branches.forEach((branch, branchIndex) => {
+                const isRightSide = node.branches.length === 1 || branchIndex === 0;
+                const angle = branch.angle || (branchIndex % 2 === 0 ? this.config.branchAngle : -this.config.branchAngle);
+                const length = branch.length || this.config.verticalSpacing * 1.5;
+                
+                // Calculate branch end position
+                const endPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length);
+                positions.set(`${node.id}-branch-${branchIndex}`, endPoint);
+                
+                // Calculate intermediate square position (middle of branch)
+                const midPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length / 2);
+                positions.set(`${node.id}-branch-${branchIndex}-intermediate`, midPoint);
+                
+                // Calculate enzyme positions - all on the appropriate side
+                if (branch.enzymes) {
+                  branch.enzymes.forEach((enzyme, eIdx) => {
+                    // Determine side based on branch position
+                    const sideMultiplier = isRightSide ? 1 : -1;
+                    const enzymeOffset = this.config.horizontalSpacing / 2;
+                    
+                    // Position enzymes vertically stacked on the appropriate side
+                    const enzymeX = midPoint.x + (sideMultiplier * enzymeOffset * 2);
+                    const enzymeY = midPoint.y + (eIdx * 60 - 30); // Stack vertically around midpoint
+                    
+                    positions.set(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`, {
+                      x: enzymeX,
+                      y: enzymeY
+                    });
+                  });
+                }
               });
             }
-          });
-        }
         
         // Original straight path calculations...
         if (index < nodes.length - 1) {
@@ -100,15 +103,16 @@ export class PathwayGenerator {
         const endPos = positions.get(`${node.id}-branch-${branchIndex}`);
         const intermediatePos = positions.get(`${node.id}-branch-${branchIndex}-intermediate`);
         
-        // Generate enzyme connections for this branch
+        // Generate enzyme connections
         const enzymeConnections = (branch.enzymes || []).map((enzyme, eIdx) => {
-          if (eIdx % 2 !== 0) return '';
+          if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
           
           const enzyme1Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`);
           const enzyme2Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx + 1}`);
           
           if (!enzyme1Pos || !enzyme2Pos) return '';
   
+          // Create path from first enzyme to middle square to second enzyme
           return `
             <path
               d="M ${enzyme1Pos.x} ${enzyme1Pos.y}
@@ -122,7 +126,6 @@ export class PathwayGenerator {
           `;
         }).join('');
   
-        // Generate branch path with intermediate square
         return `
           <g class="branch-${branchIndex}">
             <line
@@ -148,7 +151,7 @@ export class PathwayGenerator {
           </g>
         `;
       }).join('');
-    }
+  }
     generateEnzymes(enzymes, positions, nodePrefix) {
       if (!enzymes) return '';
       
@@ -389,7 +392,7 @@ export const sampleData = {
       ],
       branches: [
           {
-            angle: 30,  // Angle in degrees
+            angle: 45,  // Angle in degrees
             length: 200, // Optional: custom length
             enzymes: [
               { 
@@ -405,7 +408,7 @@ export const sampleData = {
             ]
           },
           {
-            angle: -30,
+            angle: -45,
             enzymes: [
               { 
                 id: "branch2-enzyme1", 
