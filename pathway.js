@@ -1,19 +1,53 @@
-// pathway-generator.js
+
+export class PathwayConfig {
+  constructor(config = {}) {
+    // Layout configuration
+    this.layout = {
+      nodeWidth: config.nodeWidth ?? 180,
+      nodeHeight: config.nodeHeight ?? 60,
+      verticalSpacing: config.verticalSpacing ?? 120,
+      horizontalSpacing: config.horizontalSpacing ?? 140,
+      enzymeBoxSize: config.enzymeBoxSize ?? 60,
+      intermediateBoxSize: config.intermediateBoxSize ?? 20,
+      width: config.width ?? 800,
+      height: 1200,
+      markerRadius: config.markerRadius ?? 8,
+      defaultBranchAngle: config.defaultBranchAngle ?? 30,
+      defaultBranchLength: config.defaultBranchLength ?? 200
+    };
+
+    // Style configuration
+    this.styles = {
+      node: {
+        fill: config.nodeFill ?? 'white',
+        stroke: config.nodeStroke ?? 'black',
+        strokeWidth: config.nodeStrokeWidth ?? 2,
+        className: config.nodeClassName ?? 'cursor-pointer hover:stroke-blue-500'
+      },
+      connection: {
+        stroke: config.connectionStroke ?? 'black',
+        strokeWidth: config.connectionStrokeWidth ?? 2,
+        className: config.connectionClassName ?? ''
+      },
+      enzyme: {
+        fill: config.enzymeFill ?? 'white',
+        stroke: config.enzymeStroke ?? 'black',
+        strokeWidth: config.enzymeStrokeWidth ?? 2,
+        className: config.enzymeClassName ?? 'cursor-pointer hover:stroke-blue-500'
+      },
+      marker: {
+        colors: {
+          P: config.markerPColor ?? '#FFD700',
+          O: config.markerOColor ?? '#FF4444'
+        }
+      }
+    };
+  }
+}
 
 export class PathwayGenerator {
-  constructor(config = {}) {
-      this.config = {
-        nodeWidth: config.nodeWidth || 180,
-        nodeHeight: config.nodeHeight || 60,
-        verticalSpacing: config.verticalSpacing || 120,
-        horizontalSpacing: config.horizontalSpacing || 140,
-        enzymeBoxSize: config.enzymeBoxSize || 60,
-        intermediateBoxSize: config.intermediateBoxSize || 20,
-        width: config.width || 800,  // Increased to accommodate branches
-        height: 1200,
-        markerRadius: config.markerRadius || 8,
-        branchAngle: config.branchAngle || 30  // Angle for branch divergence
-      };
+    constructor(config = {}) {
+      this.config = new PathwayConfig(config);
     }
   
     calculateBranchEndpoint(startX, startY, angle, length) {
@@ -23,351 +57,452 @@ export class PathwayGenerator {
         y: startY + length * Math.cos(radians)
       };
     }
-    
-      calculatePositions(nodes) {
-          const positions = new Map();
-          
-          nodes.forEach((node, index) => {
-            const centerX = this.config.width / 2;
-            const centerY = this.config.verticalSpacing + (index * this.config.verticalSpacing * 2);
-            
-            positions.set(node.id, {
-              x: centerX,
-              y: centerY
-            });
-            
-            // Handle branches
-            if (node.branches) {
-              node.branches.forEach((branch, branchIndex) => {
-                const isRightSide = node.branches.length === 1 || branchIndex === 0;
-                const angle = branch.angle || (branchIndex % 2 === 0 ? this.config.branchAngle : -this.config.branchAngle);
-                const length = branch.length || this.config.verticalSpacing * 1.5;
-                
-                // Calculate branch end position
-                const endPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length);
-                positions.set(`${node.id}-branch-${branchIndex}`, endPoint);
-                
-                // Calculate intermediate square position (middle of branch)
-                const midPoint = this.calculateBranchEndpoint(centerX, centerY, angle, length / 2);
-                positions.set(`${node.id}-branch-${branchIndex}-intermediate`, midPoint);
-                
-                // Calculate enzyme positions - all on the appropriate side
-                if (branch.enzymes) {
-                  branch.enzymes.forEach((enzyme, eIdx) => {
-                    // Determine side based on branch position
-                    const sideMultiplier = isRightSide ? 1 : -1;
-                    const enzymeOffset = this.config.horizontalSpacing / 2;
-                    
-                    // Position enzymes vertically stacked on the appropriate side
-                    const enzymeX = midPoint.x + (sideMultiplier * enzymeOffset * 2);
-                    const enzymeY = midPoint.y + (eIdx * 60 - 30); // Stack vertically around midpoint
-                    
-                    positions.set(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`, {
-                      x: enzymeX,
-                      y: enzymeY
-                    });
-                  });
-                }
-              });
-            }
+  
+    calculatePositions(nodes) {
+      const positions = new Map();
+      const processedNodes = new Set();
+      
+      const processNode = (node, x, y, parentId = null) => {
+        if (processedNodes.has(node.id)) return;
+        processedNodes.add(node.id);
         
-        // Original straight path calculations...
-        if (index < nodes.length - 1) {
-          const nextCenterY = this.config.verticalSpacing + ((index + 1) * this.config.verticalSpacing * 2);
-          positions.set(`intermediate-${node.id}`, {
-            x: centerX,
-            y: (centerY + nextCenterY) / 2
-          });
+        positions.set(node.id, { x, y });
+        
+        node.connections?.forEach((connection, index) => {
+          const targetNode = nodes.find(n => n.id === connection.targetId);
+          if (!targetNode) return;
           
-          if (node.enzymes) {
-            const enzymeY = (centerY + nextCenterY) / 2;
-            node.enzymes.forEach((enzyme, eIdx) => {
-              positions.set(`${node.id}-enzyme-${eIdx}`, {
-                x: centerX + this.config.horizontalSpacing * (eIdx % 2 === 0 ? 1 : -1),
-                y: enzymeY + (eIdx % 2 === 0 ? -40 : 40)
+          if (connection.type === 'main') {
+            const nextY = y + this.config.layout.verticalSpacing * 2;
+            const nextX = x;
+            
+            // Store intermediate position
+            const intermediatePos = {
+              x: (x + nextX) / 2,
+              y: (y + nextY) / 2
+            };
+            positions.set(`intermediate-${node.id}-${connection.targetId}`, intermediatePos);
+            
+            // Process enzymes
+            connection.enzymes?.forEach((enzyme, eIdx) => {
+              const isRightSide = ~connection.angle || connection.angle > 0;
+              const enzymeOffset = this.config.layout.horizontalSpacing;
+              
+              positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
+                x: intermediatePos.x + (isRightSide ? enzymeOffset : -enzymeOffset),
+                y: intermediatePos.y + (eIdx % 2 === 0 ? -40 : 40)
               });
             });
+            
+            processNode(targetNode, nextX, nextY, node.id);
+            
+          } else if (connection.type === 'branch') {
+            const angle = connection.angle ?? this.config.layout.defaultBranchAngle * (index % 2 ? 1 : -1);
+            const length = connection.length ?? this.config.layout.defaultBranchLength;
+            
+            const branchEnd = this.calculateBranchEndpoint(x, y, angle, length);
+            positions.set(`branch-${node.id}-${connection.targetId}`, branchEnd);
+            
+            // Calculate and store intermediate position
+            const branchMid = this.calculateBranchEndpoint(x, y, angle, length / 2);
+            positions.set(`intermediate-branch-${node.id}-${connection.targetId}`, branchMid);
+            
+            // Process enzymes for branch
+            connection.enzymes?.forEach((enzyme, eIdx) => {
+              const isRightSide = angle > 0;
+              const enzymeOffset = this.config.layout.horizontalSpacing;
+              
+              positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
+                x: branchMid.x + (isRightSide ? enzymeOffset : -enzymeOffset),
+                y: branchMid.y + (eIdx % 2 === 0 ? -40 : 40)
+              });
+            });
+            
+            processNode(targetNode, branchEnd.x, branchEnd.y, node.id);
           }
-        }
+        });
+      };
+      
+      // Process from root nodes
+      const rootNodes = nodes.filter(node => 
+        !nodes.some(n => n.connections?.some(c => c.targetId === node.id))
+      );
+      
+      rootNodes.forEach((rootNode, index) => {
+        const x = this.config.layout.width / 2;
+        const y = this.config.layout.verticalSpacing + (index * this.config.layout.verticalSpacing * 3);
+        processNode(rootNode, x, y);
       });
       
       return positions;
     }
   
-    // Add this new method to generate branch paths
-    generateBranchPaths(node, positions) {
-      if (!node.branches) return '';
+    generateEnzymeConnections(node, positions) {
+      if (!node.connections) return '';
       
-      return node.branches.map((branch, branchIndex) => {
-        const startPos = positions.get(node.id);
-        const endPos = positions.get(`${node.id}-branch-${branchIndex}`);
-        const intermediatePos = positions.get(`${node.id}-branch-${branchIndex}-intermediate`);
+      return node.connections.map(connection => {
+        if (!connection.enzymes) return '';
         
-        // Generate enzyme connections
-        const enzymeConnections = (branch.enzymes || []).map((enzyme, eIdx) => {
+        const intermediateKey = connection.type === 'branch' 
+          ? `intermediate-branch-${node.id}-${connection.targetId}`
+          : `intermediate-${node.id}-${connection.targetId}`;
+        
+        const intermediatePos = positions.get(intermediateKey);
+        if (!intermediatePos) return '';
+  
+        return connection.enzymes.map((enzyme, eIdx) => {
           if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
           
-          const enzyme1Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`);
-          const enzyme2Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx + 1}`);
+          const enzyme1Pos = positions.get(`enzyme-${node.id}-${connection.targetId}-${eIdx}`);
+          const enzyme2Pos = positions.get(`enzyme-${node.id}-${connection.targetId}-${eIdx + 1}`);
           
           if (!enzyme1Pos || !enzyme2Pos) return '';
-  
-          // Create path from first enzyme to middle square to second enzyme
-          return `
+          
+          // condition for staright connections and right angle connections
+          if(!connection.angle || connection.angle > 0){
+            var con_info = `
             <path
-              d="M ${enzyme1Pos.x} ${enzyme1Pos.y}
+              d="M ${enzyme1Pos.x - 30} ${enzyme1Pos.y}
                  L ${intermediatePos.x} ${intermediatePos.y}
-                 L ${enzyme2Pos.x} ${enzyme2Pos.y}"
+                 L ${enzyme2Pos.x - 30} ${enzyme2Pos.y}"
               fill="none"
               stroke="black"
               stroke-width="2"
               marker-end="url(#arrowhead)"
             />
           `;
-        }).join('');
-  
-        return `
-          <g class="branch-${branchIndex}">
-            <line
-              x1="${startPos.x}"
-              y1="${startPos.y}"
-              x2="${endPos.x}"
-              y2="${endPos.y}"
+          }else{
+            var con_info = `
+            <path
+              d="M ${enzyme1Pos.x + 30 } ${enzyme1Pos.y}
+                 L ${intermediatePos.x} ${intermediatePos.y}
+                 L ${enzyme2Pos.x + 30} ${enzyme2Pos.y}"
+              fill="none"
               stroke="black"
               stroke-width="2"
               marker-end="url(#arrowhead)"
             />
-            <rect
-              x="${intermediatePos.x - this.config.intermediateBoxSize / 2}"
-              y="${intermediatePos.y - this.config.intermediateBoxSize / 2}"
-              width="${this.config.intermediateBoxSize}"
-              height="${this.config.intermediateBoxSize}"
-              fill="white"
-              stroke="black"
-              stroke-width="2"
-            />
-            ${enzymeConnections}
-            ${this.generateEnzymes(branch.enzymes, positions, `${node.id}-branch-${branchIndex}`)}
-          </g>
-        `;
-      }).join('');
-  }
-    generateEnzymes(enzymes, positions, nodePrefix) {
-      if (!enzymes) return '';
-      
-      return enzymes.map((enzyme, index) => {
-          const enzymePos = positions.get(`${nodePrefix}-enzyme-${index}`);
-          if (!enzymePos) return '';
-  
-          // Calculate enzyme marker position (top left corner)
-          const markerX = enzymePos.x - this.config.enzymeBoxSize/2 + 15;
-          const markerY = enzymePos.y - this.config.enzymeBoxSize/2 + 15;
-  
-          return `
-              <g>
-                  <rect
-                      x="${enzymePos.x - this.config.enzymeBoxSize / 2}"
-                      y="${enzymePos.y - this.config.enzymeBoxSize / 2}"
-                      width="${this.config.enzymeBoxSize}"
-                      height="${this.config.enzymeBoxSize}"
-                      fill="white"
-                      stroke="black"
-                      stroke-width="2"
-                      class="cursor-pointer hover:stroke-blue-500"
-                  />
-                  <text
-                      x="${enzymePos.x}"
-                      y="${enzymePos.y}"
-                      text-anchor="middle"
-                      dominant-baseline="middle"
-                      class="text-sm font-medium"
-                  >${enzyme.label}</text>
-                  ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
-              </g>
           `;
+          }
+          return con_info
+        }).join('');
       }).join('');
-  }
-  renderMarker(x, y, marker) {
-      return `
-          <g>
-              <circle
-                  cx="${x}"
-                  cy="${y}"
-                  r="${this.config.markerRadius}"
-                  fill="${marker.type ? (marker.type === 'P' ? '#FFD700' : '#FF4444') : 'white'}"
-                  stroke="black"
-                  stroke-width="1"
-              />
-              ${marker.type ? `
-                  <text
-                      x="${x}"
-                      y="${y}"
-                      text-anchor="middle"
-                      dominant-baseline="middle"
-                      class="text-xs font-bold"
-                  >${marker.type}</text>
-              ` : ''}
-          </g>
-      `;
-  }
-    generateEnzymeConnections(node, positions, intermediatePos) {
-      return (node.enzymes || []).map((enzyme, eIdx) => {
-          if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
-          
-          const enzyme1Pos = positions.get(`${node.id}-enzyme-${eIdx}`);
-          const enzyme2Pos = positions.get(`${node.id}-enzyme-${eIdx + 1}`);
-          
-          if (!enzyme1Pos || !enzyme2Pos) return '';
-  
-          return `
-              <path
-                  d="M ${enzyme1Pos.x} ${enzyme1Pos.y}
-                     L ${intermediatePos.x} ${intermediatePos.y}
-                     L ${enzyme2Pos.x} ${enzyme2Pos.y}"
-                  fill="none"
-                  stroke="black"
-                  stroke-width="2"
-                  marker-end="url(#arrowhead)"
-              />
-          `;
-      }).join('');
-  }
-  generatePathwayElements(data) {
-      const positions = this.calculatePositions(data.nodes);
-  
-      return {
-        defs: `
-          <defs>
-            <marker
-              id="arrowhead"
-              markerWidth="10"
-              markerHeight="7"
-              refX="9"
-              refY="3.5"
-              orient="auto"
-            >
-              <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
-            </marker>
-          </defs>
-        `,
-
-        connections: data.nodes.map((node, index) => {
-          // Skip if it's the last node
-          if (index === data.nodes.length - 1) return '';
-          
+    }
+    
+      // Add this new method to generate branch paths
+      generateBranchPaths(node, positions) {
+        if (!node.branches) return '';
+        
+        return node.branches.map((branch, branchIndex) => {
           const startPos = positions.get(node.id);
-          const endPos = positions.get(data.nodes[index + 1].id);
-          const intermediatePos = positions.get(`intermediate-${node.id}`);
-      
-          const mainConnections = `
-              <g class="main-connection">
-                  <line
-                      x1="${startPos.x}"
-                      y1="${startPos.y + (this.config.nodeHeight / 2)}"
-                      x2="${endPos.x}"
-                      y2="${endPos.y - (this.config.nodeHeight / 2)}"
-                      stroke="black"
-                      stroke-width="2"
-                      marker-end="url(#arrowhead)"
-                  />
-                  <rect
-                      x="${intermediatePos.x - this.config.intermediateBoxSize / 2}"
-                      y="${intermediatePos.y - this.config.intermediateBoxSize / 2}"
-                      width="${this.config.intermediateBoxSize}"
-                      height="${this.config.intermediateBoxSize}"
-                      fill="white"
-                      stroke="black"
-                      stroke-width="2"
-                  />
-                  ${this.generateEnzymeConnections(node, positions, intermediatePos)}
-              </g>
-          `;
-      
-          return `
-              ${mainConnections}
-              ${this.generateBranchPaths(node, positions)}
-          `;
-      }).join(''),
-
-      nodes: data.nodes.map(node => {
-          const pos = positions.get(node.id);
+          const endPos = positions.get(`${node.id}-branch-${branchIndex}`);
+          const intermediatePos = positions.get(`${node.id}-branch-${branchIndex}-intermediate`);
           
-          // Calculate corner positions for markers on ellipses
-          const corners = [
-            { x: pos.x - this.config.nodeWidth/2 + 6, y: pos.y - this.config.nodeHeight/2 + 6 },
-            { x: pos.x + this.config.nodeWidth/2 - 6, y: pos.y - this.config.nodeHeight/2 + 6 },
-            { x: pos.x - this.config.nodeWidth/2 + 6, y: pos.y + this.config.nodeHeight/2 - 6 },
-            { x: pos.x + this.config.nodeWidth/2 - 6, y: pos.y + this.config.nodeHeight/2 - 6 }
-          ];
-          
-          const marks = (node.marks || []).map((mark, index) => 
-            this.renderMarker(corners[index].x, corners[index].y, mark)
-          ).join('');
-  
-          const enzymes = (node.enzymes || []).map((enzyme, index) => {
-            const enzymePos = positions.get(`${node.id}-enzyme-${index}`);
+          // Generate enzyme connections
+          const enzymeConnections = (branch.enzymes || []).map((enzyme, eIdx) => {
+            if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
             
-            // Calculate enzyme marker position (top left corner)
-            const markerX = enzymePos.x - this.config.enzymeBoxSize/2;
-            const markerY = enzymePos.y - this.config.enzymeBoxSize/2 ;
-  
+            const enzyme1Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`);
+            const enzyme2Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx + 1}`);
+            
+            if (!enzyme1Pos || !enzyme2Pos) return '';
+    
+            // Create path from first enzyme to middle square to second enzyme
             return `
-              <g>
-                <rect
-                  x="${enzymePos.x - this.config.enzymeBoxSize / 2}"
-                  y="${enzymePos.y - this.config.enzymeBoxSize / 2}"
-                  width="${this.config.enzymeBoxSize}"
-                  height="${this.config.enzymeBoxSize}"
-                  fill="white"
-                  stroke="black"
-                  stroke-width="2"
-                  class="cursor-pointer hover:stroke-blue-500"
-                />
-                <text
-                  x="${enzymePos.x}"
-                  y="${enzymePos.y}"
-                  text-anchor="middle"
-                  dominant-baseline="middle"
-                  class="text-sm font-medium"
-                >${enzyme.label}</text>
-                ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
-              </g>
+              <path
+                d="M ${enzyme1Pos.x} ${enzyme1Pos.y}
+                   L ${intermediatePos.x} ${intermediatePos.y}
+                   L ${enzyme2Pos.x} ${enzyme2Pos.y}"
+                fill="none"
+                stroke="black"
+                stroke-width="2"
+                marker-end="url(#arrowhead)"
+              />
             `;
           }).join('');
-  
+    
           return `
-            <g>
-              <ellipse
-                cx="${pos.x}"
-                cy="${pos.y}"
-                rx="${this.config.nodeWidth / 2}"
-                ry="${this.config.nodeHeight / 2}"
+            <g class="branch-${branchIndex}">
+              <line
+                x1="${startPos.x}"
+                y1="${startPos.y}"
+                x2="${endPos.x}"
+                y2="${endPos.y}"
+                stroke="black"
+                stroke-width="2"
+                marker-end="url(#arrowhead)"
+              />
+              <rect
+                x="${intermediatePos.x - this.config.intermediateBoxSize / 2}"
+                y="${intermediatePos.y - this.config.intermediateBoxSize / 2}"
+                width="${this.config.intermediateBoxSize}"
+                height="${this.config.intermediateBoxSize}"
                 fill="white"
                 stroke="black"
                 stroke-width="2"
-                class="cursor-pointer hover:stroke-blue-500"
               />
-              <text
-                x="${pos.x}"
-                y="${pos.y}"
-                text-anchor="middle"
-                dominant-baseline="middle"
-                class="text-sm font-medium"
-              >${node.label}</text>
-              ${marks}
-              ${enzymes}
+              ${enzymeConnections}
+              ${this.generateEnzymes(branch.enzymes, positions, `${node.id}-branch-${branchIndex}`)}
             </g>
           `;
-        }).join('')
-      };
+        }).join('');
     }
+      generateEnzymes(enzymes, positions, nodePrefix) {
+        if (!enzymes) return '';
+        
+        return enzymes.map((enzyme, index) => {
+            const enzymePos = positions.get(`${nodePrefix}-enzyme-${index}`);
+            if (!enzymePos) return '';
+    
+            // Calculate enzyme marker position (top left corner)
+            const markerX = enzymePos.x - this.config.enzymeBoxSize/2 + 15;
+            const markerY = enzymePos.y - this.config.enzymeBoxSize/2 + 15;
+    
+            return `
+                <g>
+                    <rect
+                        x="${enzymePos.x - this.config.enzymeBoxSize / 2}"
+                        y="${enzymePos.y - this.config.enzymeBoxSize / 2}"
+                        width="${this.config.enzymeBoxSize}"
+                        height="${this.config.enzymeBoxSize}"
+                        fill="white"
+                        stroke="black"
+                        stroke-width="2"
+                        class="cursor-pointer hover:stroke-blue-500"
+                    />
+                    <text
+                        x="${enzymePos.x}"
+                        y="${enzymePos.y}"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        class="text-sm font-medium"
+                    >${enzyme.label}</text>
+                    ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
+                </g>
+            `;
+        }).join('');
+    }
+
+    renderMarker(x, y, marker) {
+        return `
+          <g>
+            <circle
+              cx="${x}"
+              cy="${y}"
+              r="${this.config.layout.markerRadius}"
+              fill="${marker.type ? this.config.styles.marker.colors[marker.type] : 'white'}"
+              stroke="black"
+              stroke-width="1"
+            />
+            ${marker.type ? `
+              <text
+                x="${x}"
+                y="${y}"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="text-xs font-bold"
+              >${marker.type}</text>
+            ` : ''}
+          </g>
+        `;
+      }
+    
+      generatePathwayElements(data) {
+        const positions = this.calculatePositions(data.nodes);
+        
+        return {
+          defs: `
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="9"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3.5, 0 7" fill="#000" />
+              </marker>
+            </defs>
+          `,
+          
+          connections: data.nodes.map(node => {
+            if (!node.connections) return '';
+            
+            return node.connections.map(connection => {
+              const startPos = positions.get(node.id);
+              const targetNode = data.nodes.find(n => n.id === connection.targetId);
+              if (!targetNode) return '';
+              
+              if (connection.type === 'main') {
+                const endPos = positions.get(connection.targetId);
+                const intermediatePos = positions.get(`intermediate-${node.id}-${connection.targetId}`);
+                
+                const enzymeElements = connection.enzymes?.map((enzyme, eIdx) => {
+                  const enzymePos = positions.get(`enzyme-${node.id}-${connection.targetId}-${eIdx}`);
+                  if (!enzymePos) return '';
+    
+                  // Calculate enzyme marker position (top left corner)
+                  const markerX = enzymePos.x - this.config.layout.enzymeBoxSize/2;
+                  const markerY = enzymePos.y - this.config.layout.enzymeBoxSize/2;
+    
+                  return `
+                    <g>
+                      <rect
+                        x="${enzymePos.x - this.config.layout.enzymeBoxSize / 2}"
+                        y="${enzymePos.y - this.config.layout.enzymeBoxSize / 2}"
+                        width="${this.config.layout.enzymeBoxSize}"
+                        height="${this.config.layout.enzymeBoxSize}"
+                        fill="white"
+                        stroke="black"
+                        stroke-width="2"
+                        class="cursor-pointer hover:stroke-blue-500"
+                      />
+                      <text
+                        x="${enzymePos.x}"
+                        y="${enzymePos.y}"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        class="text-sm font-medium"
+                      >${enzyme.label}</text>
+                      ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
+                    </g>
+                  `;
+                }).join('') || '';
+                
+                return `
+                  <g class="main-connection">
+                    <line
+                      x1="${startPos.x}"
+                      y1="${startPos.y + (this.config.layout.nodeHeight / 2)}"
+                      x2="${endPos.x}"
+                      y2="${endPos.y - (this.config.layout.nodeHeight / 2)}"
+                      stroke="black"
+                      stroke-width="2"
+                      marker-end="url(#arrowhead)"
+                    />
+                    <rect
+                      x="${intermediatePos.x - this.config.layout.intermediateBoxSize / 2}"
+                      y="${intermediatePos.y - this.config.layout.intermediateBoxSize / 2}"
+                      width="${this.config.layout.intermediateBoxSize}"
+                      height="${this.config.layout.intermediateBoxSize}"
+                      fill="white"
+                      stroke="black"
+                      stroke-width="2"
+                    />
+                    ${enzymeElements}
+                  </g>
+                `;
+              } else if (connection.type === 'branch') {
+                const branchEnd = positions.get(`branch-${node.id}-${connection.targetId}`);
+                const intermediatePos = positions.get(`intermediate-branch-${node.id}-${connection.targetId}`);
+                
+                const enzymeElements = connection.enzymes?.map((enzyme, eIdx) => {
+                  const enzymePos = positions.get(`enzyme-${node.id}-${connection.targetId}-${eIdx}`);
+                  if (!enzymePos) return '';
+    
+                  const markerX = enzymePos.x - this.config.layout.enzymeBoxSize/2;
+                  const markerY = enzymePos.y - this.config.layout.enzymeBoxSize/2;
+    
+                  return `
+                    <g>
+                      <rect
+                        x="${enzymePos.x - this.config.layout.enzymeBoxSize / 2}"
+                        y="${enzymePos.y - this.config.layout.enzymeBoxSize / 2}"
+                        width="${this.config.layout.enzymeBoxSize}"
+                        height="${this.config.layout.enzymeBoxSize}"
+                        fill="white"
+                        stroke="black"
+                        stroke-width="2"
+                        class="cursor-pointer hover:stroke-blue-500"
+                      />
+                      <text
+                        x="${enzymePos.x}"
+                        y="${enzymePos.y}"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        class="text-sm font-medium"
+                      >${enzyme.label}</text>
+                      ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
+                    </g>
+                  `;
+                }).join('') || '';
+                
+                return `
+                  <g class="branch-connection">
+                    <line
+                      x1="${startPos.x}"
+                      y1="${startPos.y + (this.config.layout.nodeHeight / 2)}"
+                      x2="${branchEnd.x}"
+                      y2="${branchEnd.y - (this.config.layout.nodeHeight / 2)}"
+                      stroke="black"
+                      stroke-width="2"
+                      marker-end="url(#arrowhead)"
+                    />
+                    <rect
+                      x="${intermediatePos.x - this.config.layout.intermediateBoxSize / 2}"
+                      y="${intermediatePos.y - this.config.layout.intermediateBoxSize / 2}"
+                      width="${this.config.layout.intermediateBoxSize}"
+                      height="${this.config.layout.intermediateBoxSize}"
+                      fill="white"
+                      stroke="black"
+                      stroke-width="2"
+                    />
+                    ${enzymeElements}
+                  </g>
+                `;
+              }
+            }).join('') + this.generateEnzymeConnections(node, positions);
+          }).join(''),
+    
+          nodes: data.nodes.map(node => {
+            const pos = positions.get(node.id);
+            if (!pos) return '';
+    
+            // Calculate corner positions for markers
+            const corners = [
+              { x: pos.x - this.config.layout.nodeWidth/2 + 10, y: pos.y - this.config.layout.nodeHeight/2 + 10 },
+              { x: pos.x + this.config.layout.nodeWidth/2 - 10, y: pos.y - this.config.layout.nodeHeight/2 + 10 },
+              { x: pos.x - this.config.layout.nodeWidth/2 + 10, y: pos.y + this.config.layout.nodeHeight/2 - 10 },
+              { x: pos.x + this.config.layout.nodeWidth/2 - 10, y: pos.y + this.config.layout.nodeHeight/2 - 10 }
+            ];
+            
+            const markers = (node.marks || []).map((mark, index) => 
+              this.renderMarker(corners[index].x, corners[index].y, mark)
+            ).join('');
+    
+            return `
+              <g>
+                <ellipse
+                  cx="${pos.x}"
+                  cy="${pos.y}"
+                  rx="${this.config.layout.nodeWidth / 2}"
+                  ry="${this.config.layout.nodeHeight / 2}"
+                  fill="${this.config.styles.node.fill || 'white'}"
+                  stroke="${this.config.styles.node.stroke || 'black'}"
+                  stroke-width="${this.config.styles.node.strokeWidth || 2}"
+                  class="${this.config.styles.node.className || 'cursor-pointer hover:stroke-blue-500'}"
+                />
+                <text
+                  x="${pos.x}"
+                  y="${pos.y}"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="text-sm font-medium"
+                >${node.label}</text>
+                ${markers}
+              </g>
+            `;
+          }).join('')
+        };
+      }
 
   generateSVG(data) {
     const elements = this.generatePathwayElements(data);
     return `
       <svg 
-        width="${this.config.width}" 
-        height="${this.config.height}"
+        width="${this.config.layout.width}" 
+        height="${this.config.layout.height}"
         class="bg-white shadow-lg rounded-lg"
       >
         ${elements.defs}
@@ -376,97 +511,164 @@ export class PathwayGenerator {
       </svg>
     `;
   }
-}
-
-export const sampleData = {
-
-  nodes: [
-    {
-      id: "node1",
-      label: "5-aza",
-      marks: [
-        { type: "P" },    // Filled with P
-        { type: "O" },    // Filled with O
-        { type: null },   // Empty circle
-        { type: "P" }     // Filled with P
-      ],
-      branches: [
+  }
+  
+  export const sampleData = {
+    nodes: [
+      {
+        id: "glucose",
+        label: "Glucose",
+        marks: [
+          { type: "P" },
+          { type: "O" },
+          { type: null },
+          { type: null }
+        ],
+        connections: [
           {
-            angle: 45,  // Angle in degrees
-            length: 200, // Optional: custom length
+            targetId: "g6p",
+            type: "main",
             enzymes: [
               { 
-                id: "branch1-enzyme1", 
-                label: "UCK",
+                id: "hk1",
+                label: "Hex",
                 marker: { type: "P" }
               },
               { 
-                id: "branch1-enzyme2", 
-                label: "UCK",
-                marker: { type: null }
-              }
-            ]
-          },
-          {
-            angle: -45,
-            enzymes: [
-              { 
-                id: "branch2-enzyme1", 
-                label: "NMPK",
-                marker: { type: "O" }
-              },
-              { 
-                id: "branch2-enzyme2", 
-                label: "NMPK",
+                id: "hk2",
+                label: "Gluc",
                 marker: { type: null }
               }
             ]
           }
         ],
-      // enzymes: [
-      //   { 
-      //     id: "enzyme1", 
-      //     label: "UCK",
-      //     marker: { type: "P" }  // Enzyme with P marker
-      //   },
-      //   { 
-      //     id: "enzyme2", 
-      //     label: "UCK",
-      //     marker: { type: null } // Enzyme with empty marker
-      //   }
-      // ]
-    },
-    {
-      id: "node2",
-      label: "5-aza-CMP",
-      marks: [
-        { type: "P" },
-        { type: null },  // Empty circle
-        { type: "O" },
-        { type: "P" }
-      ],
-      enzymes: [
-        { 
-          id: "enzyme3", 
-          label: "NMPK",
-          marker: { type: "O" }
-        },
-        { 
-          id: "enzyme4", 
-          label: "NMPK",
-          marker: { type: null }
+        style: {
+          fill: "#f0f0f0",
+          stroke: "#333333"
         }
-      ]
-    },
-    {
-      id: "node3",
-      label: "5-aza-CDP",
-      marks: [
-        { type: null },  // Empty circle
-        { type: "O" },
-        { type: "P" },
-        { type: "O" }
-      ]
+      },
+      {
+        id: "g6p",
+        label: "Glucose-6-Phosphate",
+        marks: [
+          { type: "P" },
+          { type: "P" },
+          { type: "O" },
+          { type: null }
+        ],
+        connections: [
+          {
+            targetId: "6pg",
+            type: "branch",
+            angle: 35,
+            length: 200,
+            enzymes: [
+              {
+                id: "g6pd",
+                label: "G6P",
+                marker: { type: "P" }
+              },
+              {
+                id: "lactonase",
+                label: "Lact",
+                marker: { type: null }
+              }
+            ]
+          },
+          {
+            targetId: "g1p",
+            type: "branch",
+            angle: -35,
+            length: 180,
+            enzymes: [
+              {
+                id: "pgm",
+                label: "Phosph",
+                marker: { type: "O" }
+              },
+              {
+                id: "pgm",
+                label: "Phosph",
+                marker: { type: null }
+              },
+            ]
+          }
+        ]
+      },
+
+      // Branch pathway endpoints
+      {
+        id: "6pg",
+        label: "6-Phosphogl",
+        marks: [
+          { type: "P" },
+          { type: "O" },
+          { type: null },
+          { type: "P" }
+        ],
+        connections: [
+          {
+            targetId: "ru5p",
+            type: "main",
+            enzymes: [
+              {
+                id: "pgd",
+                label: "6PG\ndehydrog",
+                marker: { type: "O" }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "g1p",
+        label: "Glucose-1",
+        marks: [
+          { type: "P" },
+          { type: null },
+          { type: "O" },
+          { type: "P" }
+        ],
+        connections: [
+          {
+            targetId: "udpg",
+            type: "main",
+            enzymes: [
+              {
+                id: "ugpp",
+                label: "UDP-glucose",
+                marker: { type: "P" }
+              }
+            ]
+          }
+        ]
+      },
+
+    ],
+    config: {
+      // Custom configuration for this specific pathway
+      height:1200,
+      nodeWidth: 200,
+      nodeHeight: 70,
+      verticalSpacing: 140,
+      horizontalSpacing: 160,
+      styles: {
+        node: {
+          fill: "#f5f5f5",
+          stroke: "#2a4365",
+          strokeWidth: 2
+        },
+        enzyme: {
+          fill: "#ffffff",
+          stroke: "#2a4365",
+          strokeWidth: 1.5
+        },
+        marker: {
+          colors: {
+            P: "#ffd700",
+            O: "#ff6b6b"
+          }
+        }
+      }
     }
-  ]
-};
+  };
