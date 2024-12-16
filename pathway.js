@@ -4,8 +4,8 @@ export class PathwayConfig {
     // Layout configuration
     this.layout = {
       nodeWidth: config.nodeWidth ?? 180,
-      nodeHeight: config.nodeHeight ?? 60,
-      verticalSpacing: config.verticalSpacing ?? 120,
+      nodeHeight: 50,
+      verticalSpacing: 120,
       horizontalSpacing: config.horizontalSpacing ?? 140,
       enzymeBoxSize: config.enzymeBoxSize ?? 60,
       intermediateBoxSize: config.intermediateBoxSize ?? 20,
@@ -13,9 +13,14 @@ export class PathwayConfig {
       height: 1200,
       markerRadius: config.markerRadius ?? 8,
       defaultBranchAngle: config.defaultBranchAngle ?? 30,
-      defaultBranchLength: config.defaultBranchLength ?? 200
+      defaultBranchLength: 200
     };
-
+    this.compartments = {
+        lineSpacing: 10, // Space between double lines
+        labelOffset: 30, // Distance of label from line
+        curveControl: 50, // Controls curve intensity
+        opacity: 0.3, // Background fill opacity
+      };
     // Style configuration
     this.styles = {
       node: {
@@ -59,83 +64,99 @@ export class PathwayGenerator {
     }
   
     calculatePositions(nodes) {
-      const positions = new Map();
-      const processedNodes = new Set();
-      
-      const processNode = (node, x, y, parentId = null) => {
-        if (processedNodes.has(node.id)) return;
-        processedNodes.add(node.id);
+        const positions = new Map();
+        const processedNodes = new Set();
         
-        positions.set(node.id, { x, y });
-        
-        node.connections?.forEach((connection, index) => {
-          const targetNode = nodes.find(n => n.id === connection.targetId);
-          if (!targetNode) return;
+        const processNode = (node, x, y, parentId = null) => {
+          if (processedNodes.has(node.id)) return;
+          processedNodes.add(node.id);
           
-          if (connection.type === 'main') {
-            const nextY = y + this.config.layout.verticalSpacing * 2;
-            const nextX = x;
+          positions.set(node.id, { x, y });
+          
+          // Count branches first
+          const branchConnections = (node.connections || []).filter(c => c.type === 'branch');
+          const hasTwoBranches = branchConnections.length === 2;
+          
+          node.connections?.forEach((connection, index) => {
+            const targetNode = nodes.find(n => n.id === connection.targetId);
+            if (!targetNode) return;
             
-            // Store intermediate position
-            const intermediatePos = {
-              x: (x + nextX) / 2,
-              y: (y + nextY) / 2
-            };
-            positions.set(`intermediate-${node.id}-${connection.targetId}`, intermediatePos);
-            
-            // Process enzymes
-            connection.enzymes?.forEach((enzyme, eIdx) => {
-              const isRightSide = ~connection.angle || connection.angle > 0;
-              const enzymeOffset = this.config.layout.horizontalSpacing;
+            if (connection.type === 'main') {
+              const nextY = y + this.config.layout.verticalSpacing * 2;
+              const nextX = x;
               
-              positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
-                x: intermediatePos.x + (isRightSide ? enzymeOffset : -enzymeOffset),
-                y: intermediatePos.y + (eIdx % 2 === 0 ? -40 : 40)
-              });
-            });
-            
-            processNode(targetNode, nextX, nextY, node.id);
-            
-          } else if (connection.type === 'branch') {
-            const angle = connection.angle ?? this.config.layout.defaultBranchAngle * (index % 2 ? 1 : -1);
-            const length = connection.length ?? this.config.layout.defaultBranchLength;
-            
-            const branchEnd = this.calculateBranchEndpoint(x, y, angle, length);
-            positions.set(`branch-${node.id}-${connection.targetId}`, branchEnd);
-            
-            // Calculate and store intermediate position
-            const branchMid = this.calculateBranchEndpoint(x, y, angle, length / 2);
-            positions.set(`intermediate-branch-${node.id}-${connection.targetId}`, branchMid);
-            
-            // Process enzymes for branch
-            connection.enzymes?.forEach((enzyme, eIdx) => {
-              const isRightSide = angle > 0;
-              const enzymeOffset = this.config.layout.horizontalSpacing;
+              // Store intermediate position
+              const intermediatePos = {
+                x: (x + nextX) / 2,
+                y: (y + nextY) / 2
+              };
+              positions.set(`intermediate-${node.id}-${connection.targetId}`, intermediatePos);
               
-              positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
-                x: branchMid.x + (isRightSide ? enzymeOffset : -enzymeOffset),
-                y: branchMid.y + (eIdx % 2 === 0 ? -40 : 40)
+              // Process enzymes
+              connection.enzymes?.forEach((enzyme, eIdx) => {
+                const isRightSide = ~connection.angle || connection.angle > 0;
+                const enzymeOffset = this.config.layout.horizontalSpacing;
+                
+                positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
+                  x: intermediatePos.x + (isRightSide ? enzymeOffset : -enzymeOffset),
+                  y: intermediatePos.y + (eIdx % 2 === 0 ? -40 : 40)
+                });
               });
-            });
-            
-            processNode(targetNode, branchEnd.x, branchEnd.y, node.id);
-          }
+              
+              processNode(targetNode, nextX, nextY, node.id);
+              
+            } else if (connection.type === 'branch') {
+              // Calculate vertical offset first
+              const verticalOffset = hasTwoBranches ? this.config.layout.verticalSpacing * 2 : 0;
+              
+              // Adjust the branch length to accommodate the vertical offset
+              const defaultLength = hasTwoBranches ? Math.sqrt((300 * 300) + (verticalOffset * verticalOffset)) : this.config.layout.defaultBranchLength;
+              const angle = connection.angle ?? this.config.layout.defaultBranchAngle * (index % 2 ? 1 : -1);
+              const length = connection.length ?? defaultLength;
+              
+              // Calculate end point including the vertical offset
+              const branchEnd = {
+                x: x + length * Math.sin(angle * Math.PI / 180),
+                y: y + length * Math.cos(angle * Math.PI / 180) + verticalOffset
+              };
+              positions.set(`branch-${node.id}-${connection.targetId}`, branchEnd);
+              
+              // Calculate and store intermediate position - maintain the same ratio
+              const branchMid = {
+                x: x + (length/2) * Math.sin(angle * Math.PI / 180),
+                y: y + (length/2) * Math.cos(angle * Math.PI / 180) + (verticalOffset/2)
+              };
+              positions.set(`intermediate-branch-${node.id}-${connection.targetId}`, branchMid);
+              
+              // Process enzymes for branch
+              connection.enzymes?.forEach((enzyme, eIdx) => {
+                const isRightSide = angle > 0;
+                const enzymeOffset = this.config.layout.horizontalSpacing;
+                
+                positions.set(`enzyme-${node.id}-${connection.targetId}-${eIdx}`, {
+                  x: branchMid.x + (isRightSide ? enzymeOffset : -enzymeOffset),
+                  y: branchMid.y + (eIdx % 2 === 0 ? -40 : 40)
+                });
+              });
+              
+              processNode(targetNode, branchEnd.x, branchEnd.y, node.id);
+            }
+          });
+        };
+        
+        // Process from root nodes
+        const rootNodes = nodes.filter(node => 
+          !nodes.some(n => n.connections?.some(c => c.targetId === node.id))
+        );
+        
+        rootNodes.forEach((rootNode, index) => {
+          const x = this.config.layout.width / 2;
+          const y = this.config.layout.verticalSpacing + (index * this.config.layout.verticalSpacing * 3);
+          processNode(rootNode, x, y);
         });
-      };
-      
-      // Process from root nodes
-      const rootNodes = nodes.filter(node => 
-        !nodes.some(n => n.connections?.some(c => c.targetId === node.id))
-      );
-      
-      rootNodes.forEach((rootNode, index) => {
-        const x = this.config.layout.width / 2;
-        const y = this.config.layout.verticalSpacing + (index * this.config.layout.verticalSpacing * 3);
-        processNode(rootNode, x, y);
-      });
-      
-      return positions;
-    }
+        
+        return positions;
+      }
   
     generateEnzymeConnections(node, positions) {
       if (!node.connections) return '';
@@ -458,7 +479,7 @@ export class PathwayGenerator {
           nodes: data.nodes.map(node => {
             const pos = positions.get(node.id);
             if (!pos) return '';
-    
+          
             // Calculate corner positions for markers
             const corners = [
               { x: pos.x - this.config.layout.nodeWidth/2 + 10, y: pos.y - this.config.layout.nodeHeight/2 + 10 },
@@ -470,9 +491,15 @@ export class PathwayGenerator {
             const markers = (node.marks || []).map((mark, index) => 
               this.renderMarker(corners[index].x, corners[index].y, mark)
             ).join('');
-    
+          
+            // Calculate inner ellipse dimensions - make it slightly smaller
+            const innerPadding = 5; // Adjust this value to control the space between ellipses
+            const innerRx = this.config.layout.nodeWidth / 2 - innerPadding;
+            const innerRy = this.config.layout.nodeHeight / 2 - innerPadding;
+          
             return `
               <g>
+                <!-- Outer ellipse -->
                 <ellipse
                   cx="${pos.x}"
                   cy="${pos.y}"
@@ -482,6 +509,16 @@ export class PathwayGenerator {
                   stroke="${this.config.styles.node.stroke || 'black'}"
                   stroke-width="${this.config.styles.node.strokeWidth || 2}"
                   class="${this.config.styles.node.className || 'cursor-pointer hover:stroke-blue-500'}"
+                />
+                <!-- Inner ellipse -->
+                <ellipse
+                  cx="${pos.x}"
+                  cy="${pos.y}"
+                  rx="${innerRx}"
+                  ry="${innerRy}"
+                  fill="none"
+                  stroke="${this.config.styles.node.stroke || 'black'}"
+                  stroke-width="${this.config.styles.node.strokeWidth || 2}"
                 />
                 <text
                   x="${pos.x}"
@@ -497,23 +534,127 @@ export class PathwayGenerator {
         };
       }
 
-  generateSVG(data) {
-    const elements = this.generatePathwayElements(data);
-    return `
-      <svg 
-        width="${this.config.layout.width}" 
-        height="${this.config.layout.height}"
-        class="bg-white shadow-lg rounded-lg"
-      >
-        ${elements.defs}
-        ${elements.connections}
-        ${elements.nodes}
-      </svg>
-    `;
+      // In the generateCompartments method, modify the double curved lines section:
+generateCompartments(data, positions) {
+    if (!data.compartments) return '';
+  
+    return data.compartments.map(compartment => {
+      const y = compartment.y;
+      const width = this.config.layout.width;
+      
+      // For arc, we'll use different parameters
+      const arcHeight = 80; // Controls how much the arc bows
+      const y2 = y + this.config.compartments.lineSpacing;
+      
+      return `
+        <!-- Gradient definition -->
+        <defs>
+          <linearGradient id="gradient-${compartment.id}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${compartment.color}" stop-opacity="0"/>
+            <stop offset="50%" stop-color="${compartment.color}" stop-opacity="${this.config.compartments.opacity}"/>
+            <stop offset="100%" stop-color="${compartment.color}" stop-opacity="0"/>
+          </linearGradient>
+          
+          <mask id="mask-${compartment.id}">
+            <rect x="0" y="0" width="${width}" height="${this.config.layout.height}" fill="white"/>
+            ${compartment.intersectNodes.map(nodeId => {
+              const pos = positions.get(nodeId);
+              if (!pos) return '';
+              return `
+                <rect 
+                  x="${pos.x - this.config.layout.intermediateBoxSize/2 - 2}"
+                  y="${pos.y - this.config.layout.intermediateBoxSize/2 - 2}"
+                  width="${this.config.layout.intermediateBoxSize + 4}"
+                  height="${this.config.layout.intermediateBoxSize + 4}"
+                  fill="black"
+                />
+              `;
+            }).join('')}
+          </mask>
+        </defs>
+  
+        <g class="compartment-${compartment.id}">
+          <!-- Background fill -->
+          <path
+            d="M 0 ${y - 100}
+               L ${width} ${y - 100}
+               L ${width} ${y + 100}
+               L 0 ${y + 100}
+               Z"
+            fill="url(#gradient-${compartment.id})"
+            mask="url(#mask-${compartment.id})"
+          />
+          
+          <!-- Double arc lines -->
+          <path
+            d="M 0 ${y} 
+               Q ${width/2} ${y - arcHeight} ${width} ${y}"
+            fill="none"
+            stroke="${compartment.color}"
+            stroke-width="${compartment.strokeWidth}"
+            stroke-opacity="0.8"
+          />
+          <path
+            d="M 0 ${y2} 
+               Q ${width/2} ${y2 - arcHeight} ${width} ${y2}"
+            fill="none"
+            stroke="${compartment.color}"
+            stroke-width="${compartment.strokeWidth}"
+            stroke-opacity="0.8"
+          />
+          
+          <!-- Compartment label -->
+          <text
+            x="20"
+            y="${y - this.config.compartments.labelOffset}"
+            fill="${compartment.color}"
+            font-weight="bold"
+            class="text-sm"
+          >${compartment.label}</text>
+        </g>
+      `;
+    }).join('');
   }
+      
+      // Modify generateSVG method:
+      generateSVG(data) {
+        const positions = this.calculatePositions(data.nodes);
+        console.log(positions)
+        const elements = this.generatePathwayElements(data);
+        return `
+          <svg 
+            width="${this.config.layout.width}" 
+            height="${this.config.layout.height}"
+            class="bg-white shadow-lg rounded-lg"
+          >
+            ${elements.defs}
+            ${this.generateCompartments(data, positions)}
+            ${elements.connections}
+            ${elements.nodes}
+          </svg>
+        `;
+      }
   }
   
   export const sampleData = {
+    compartments: [
+        {
+          id: "plasma-membrane",
+          label: "Plasma Membrane",
+          y: 150, // Y position from top
+          color: "#FF9999",
+          strokeWidth: 3,
+          intersectNodes: ["glucose"], // IDs of nodes/connections this boundary intersects with
+        },
+        {
+          id: "nucleus",
+          label: "Nucleus",
+          y: 700,
+          color: "#9999FF",
+          strokeWidth: 3,
+          intersectNodes: ["6pg", "g1p"], // Example nodes
+        }
+      ],
     nodes: [
       {
         id: "glucose",
