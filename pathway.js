@@ -10,7 +10,7 @@ export class PathwayConfig {
       enzymeBoxSize: config.enzymeBoxSize ?? 60,
       intermediateBoxSize: config.intermediateBoxSize ?? 20,
       width: config.width ?? 800,
-      height: 1200,
+      height: 1400,
       markerRadius: config.markerRadius ?? 8,
       defaultBranchAngle: config.defaultBranchAngle ?? 30,
       defaultBranchLength: 200
@@ -157,7 +157,75 @@ export class PathwayGenerator {
         
         return positions;
       }
-  
+      generateDNAHelix(x, y, width = 100, height = 40) {
+        const numberOfWaves = 3;
+        const strand1Points = [];
+        const strand2Points = [];
+        
+        // Generate points for both strands
+        for (let i = 0; i <= numberOfWaves * 16; i++) {
+          const t = (i / (numberOfWaves * 16)) * Math.PI * 2 * numberOfWaves;
+          const xPos = x + (width * t) / (Math.PI * 2 * numberOfWaves);
+          
+          // First strand
+          strand1Points.push({
+            x: xPos,
+            y: y + Math.sin(t) * height/2
+          });
+          
+          // Second strand (phase shifted)
+          strand2Points.push({
+            x: xPos,
+            y: y + Math.sin(t + Math.PI) * height/2
+          });
+        }
+        
+        // Create path strings
+        const strand1Path = strand1Points.map((p, i) => 
+          `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+        ).join(' ');
+        
+        const strand2Path = strand2Points.map((p, i) => 
+          `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+        ).join(' ');
+    
+        return `
+          <g class="dna-helix">
+            <path d="${strand1Path}" stroke="#4299E1" fill="none" stroke-width="2"/>
+            <path d="${strand2Path}" stroke="#805AD5" fill="none" stroke-width="2"/>
+          </g>
+        `;
+      }
+    
+      generateRNA(x, y, width = 100, height = 30) {
+        const numberOfWaves = 4;
+        const points = [];
+        
+        // Generate points for RNA wave
+        for (let i = 0; i <= numberOfWaves * 16; i++) {
+          const t = (i / (numberOfWaves * 16)) * Math.PI * 2 * numberOfWaves;
+          points.push({
+            x: x + (width * t) / (Math.PI * 2 * numberOfWaves),
+            y: y + Math.sin(t) * height/2
+          });
+        }
+        
+        const path = points.map((p, i) => 
+          `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+        ).join(' ');
+    
+        return `
+          <g class="rna-strand">
+            <path 
+              d="${path}" 
+              stroke="#C05621" 
+              fill="none" 
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </g>
+        `;
+      }
     generateEnzymeConnections(node, positions) {
       if (!node.connections) return '';
       
@@ -184,7 +252,7 @@ export class PathwayGenerator {
             var con_info = `
             <path
               d="M ${enzyme1Pos.x - 30} ${enzyme1Pos.y}
-                 L ${intermediatePos.x} ${intermediatePos.y}
+                 L ${intermediatePos.x + 11} ${intermediatePos.y}
                  L ${enzyme2Pos.x - 30} ${enzyme2Pos.y}"
               fill="none"
               stroke="black"
@@ -196,7 +264,7 @@ export class PathwayGenerator {
             var con_info = `
             <path
               d="M ${enzyme1Pos.x + 30 } ${enzyme1Pos.y}
-                 L ${intermediatePos.x} ${intermediatePos.y}
+                 L ${intermediatePos.x - 11} ${intermediatePos.y}
                  L ${enzyme2Pos.x + 30} ${enzyme2Pos.y}"
               fill="none"
               stroke="black"
@@ -208,100 +276,6 @@ export class PathwayGenerator {
           return con_info
         }).join('');
       }).join('');
-    }
-    
-      // Add this new method to generate branch paths
-      generateBranchPaths(node, positions) {
-        if (!node.branches) return '';
-        
-        return node.branches.map((branch, branchIndex) => {
-          const startPos = positions.get(node.id);
-          const endPos = positions.get(`${node.id}-branch-${branchIndex}`);
-          const intermediatePos = positions.get(`${node.id}-branch-${branchIndex}-intermediate`);
-          
-          // Generate enzyme connections
-          const enzymeConnections = (branch.enzymes || []).map((enzyme, eIdx) => {
-            if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
-            
-            const enzyme1Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx}`);
-            const enzyme2Pos = positions.get(`${node.id}-branch-${branchIndex}-enzyme-${eIdx + 1}`);
-            
-            if (!enzyme1Pos || !enzyme2Pos) return '';
-    
-            // Create path from first enzyme to middle square to second enzyme
-            return `
-              <path
-                d="M ${enzyme1Pos.x} ${enzyme1Pos.y}
-                   L ${intermediatePos.x} ${intermediatePos.y}
-                   L ${enzyme2Pos.x} ${enzyme2Pos.y}"
-                fill="none"
-                stroke="black"
-                stroke-width="2"
-                marker-end="url(#arrowhead)"
-              />
-            `;
-          }).join('');
-    
-          return `
-            <g class="branch-${branchIndex}">
-              <line
-                x1="${startPos.x}"
-                y1="${startPos.y}"
-                x2="${endPos.x}"
-                y2="${endPos.y}"
-                stroke="black"
-                stroke-width="2"
-                marker-end="url(#arrowhead)"
-              />
-              <rect
-                x="${intermediatePos.x - this.config.intermediateBoxSize / 2}"
-                y="${intermediatePos.y - this.config.intermediateBoxSize / 2}"
-                width="${this.config.intermediateBoxSize}"
-                height="${this.config.intermediateBoxSize}"
-                fill="white"
-                stroke="black"
-                stroke-width="2"
-              />
-              ${enzymeConnections}
-              ${this.generateEnzymes(branch.enzymes, positions, `${node.id}-branch-${branchIndex}`)}
-            </g>
-          `;
-        }).join('');
-    }
-      generateEnzymes(enzymes, positions, nodePrefix) {
-        if (!enzymes) return '';
-        
-        return enzymes.map((enzyme, index) => {
-            const enzymePos = positions.get(`${nodePrefix}-enzyme-${index}`);
-            if (!enzymePos) return '';
-    
-            // Calculate enzyme marker position (top left corner)
-            const markerX = enzymePos.x - this.config.enzymeBoxSize/2 + 15;
-            const markerY = enzymePos.y - this.config.enzymeBoxSize/2 + 15;
-    
-            return `
-                <g>
-                    <rect
-                        x="${enzymePos.x - this.config.enzymeBoxSize / 2}"
-                        y="${enzymePos.y - this.config.enzymeBoxSize / 2}"
-                        width="${this.config.enzymeBoxSize}"
-                        height="${this.config.enzymeBoxSize}"
-                        fill="white"
-                        stroke="black"
-                        stroke-width="2"
-                        class="cursor-pointer hover:stroke-blue-500"
-                    />
-                    <text
-                        x="${enzymePos.x}"
-                        y="${enzymePos.y}"
-                        text-anchor="middle"
-                        dominant-baseline="middle"
-                        class="text-sm font-medium"
-                    >${enzyme.label}</text>
-                    ${enzyme.marker ? this.renderMarker(markerX, markerY, enzyme.marker) : ''}
-                </g>
-            `;
-        }).join('');
     }
 
     renderMarker(x, y, marker) {
@@ -328,9 +302,90 @@ export class PathwayGenerator {
         `;
       }
     
+      generateIntermediateElement(x, y, config) {
+        const {
+          label,
+          width = 120,
+          height = 40,
+          attachedBox
+        } = config;
+      
+        const isRightSide = attachedBox.side === 'right';
+        const markerRadius = 8;
+        const spacing = 20;  // Space between elements
+      
+        // Calculate positions
+        const markerX = isRightSide ? x + width/2 : x - width/2;
+        const attachedBoxX = isRightSide ? 
+          markerX + markerRadius + spacing + attachedBox.width/2 : 
+          markerX - markerRadius - spacing - attachedBox.width/2;
+      
+        return `
+          <g class="intermediate-element">
+            <!-- Main rectangle -->
+            <rect
+              x="${x - width/2}"
+              y="${y - height/2}"
+              width="${width}"
+              height="${height}"
+              fill="white"
+              stroke="black"
+              stroke-width="2"
+            />
+            <text
+              x="${x}"
+              y="${y}"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              class="text-sm font-medium"
+            >${label}</text>
+      
+            <!-- Marker circle -->
+            <circle
+              cx="${markerX}"
+              cy="${y}"
+              r="${markerRadius}"
+              fill="white"
+              stroke="black"
+              stroke-width="1"
+            />
+      
+            <!-- Attached box -->
+            <rect
+              x="${attachedBoxX - attachedBox.width/2}"
+              y="${y - attachedBox.height/2}"
+              width="${attachedBox.width}"
+              height="${attachedBox.height}"
+              rx="20"
+              ry="20"
+              fill="white"
+              stroke="black"
+              stroke-width="2"
+            />
+            <text
+              x="${attachedBoxX}"
+              y="${y}"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              class="text-sm font-medium"
+            >${attachedBox.label}</text>
+      
+            <!-- Connection line between marker and attached box -->
+            <line
+              x1="${markerX}"
+              y1="${y}"
+              x2="${isRightSide ? attachedBoxX - attachedBox.width/2 : attachedBoxX + attachedBox.width/2}"
+              y2="${y}"
+              stroke="black"
+              stroke-width="2"
+            />
+          </g>
+        `;
+      }
+      
       generatePathwayElements(data) {
         const positions = this.calculatePositions(data.nodes);
-        
+
         return {
           defs: `
             <defs>
@@ -355,6 +410,28 @@ export class PathwayGenerator {
               const targetNode = data.nodes.find(n => n.id === connection.targetId);
               if (!targetNode) return '';
               
+              if (connection.endDecoration) {
+                const endPos = positions.get(connection.targetId);
+                if (endPos) {
+                  const decorationY = endPos.y + this.config.layout.nodeHeight/2 + 20;
+                  if (connection.endDecoration === 'DNA') {
+                    return this.generateDNAHelix(endPos.x - 50, decorationY);
+                  } else if (connection.endDecoration === 'RNA') {
+                    return this.generateRNA(endPos.x - 50, decorationY);
+                  }
+                }
+              }
+
+              const intermediatePos = positions.get(`intermediate-${node.id}-${connection.targetId}`);
+  
+  let intermediateElement = '';
+  if (connection.intermediateElement) {
+    intermediateElement = this.generateIntermediateElement(
+      intermediatePos.x,
+      intermediatePos.y,
+      connection.intermediateElement
+    );
+  }
               if (connection.type === 'main') {
                 const endPos = positions.get(connection.targetId);
                 const intermediatePos = positions.get(`intermediate-${node.id}-${connection.targetId}`);
@@ -366,7 +443,6 @@ export class PathwayGenerator {
                   // Calculate enzyme marker position (top left corner)
                   const markerX = enzymePos.x - this.config.layout.enzymeBoxSize/2;
                   const markerY = enzymePos.y - this.config.layout.enzymeBoxSize/2;
-    
                   return `
                     <g>
                       <rect
@@ -391,6 +467,7 @@ export class PathwayGenerator {
                   `;
                 }).join('') || '';
                 
+                // middle branch
                 return `
                   <g class="main-connection">
                     <line
@@ -411,6 +488,7 @@ export class PathwayGenerator {
                       stroke="black"
                       stroke-width="2"
                     />
+                    ${intermediateElement}
                     ${enzymeElements}
                   </g>
                 `;
@@ -469,6 +547,7 @@ export class PathwayGenerator {
                       stroke="black"
                       stroke-width="2"
                     />
+                    ${intermediateElement}
                     ${enzymeElements}
                   </g>
                 `;
@@ -488,6 +567,14 @@ export class PathwayGenerator {
               { x: pos.x + this.config.layout.nodeWidth/2 - 10, y: pos.y + this.config.layout.nodeHeight/2 - 10 }
             ];
             
+            if (node.type === 'DNA') {
+                return this.generateDNAHelix(pos.x - 50, pos.y);
+              }
+              
+              if (node.type === 'RNA') {
+                return this.generateRNA(pos.x - 50, pos.y);
+              }
+
             const markers = (node.marks || []).map((mark, index) => 
               this.renderMarker(corners[index].x, corners[index].y, mark)
             ).join('');
@@ -539,7 +626,8 @@ generateCompartments(data, positions) {
     if (!data.compartments) return '';
   
     return data.compartments.map(compartment => {
-      const y = compartment.y;
+      const pos = positions.get(compartment.intersectNodes[0])
+      const y = pos.y;
       const width = this.config.layout.width;
       
       // For arc, we'll use different parameters
@@ -554,23 +642,6 @@ generateCompartments(data, positions) {
             <stop offset="50%" stop-color="${compartment.color}" stop-opacity="${this.config.compartments.opacity}"/>
             <stop offset="100%" stop-color="${compartment.color}" stop-opacity="0"/>
           </linearGradient>
-          
-          <mask id="mask-${compartment.id}">
-            <rect x="0" y="0" width="${width}" height="${this.config.layout.height}" fill="white"/>
-            ${compartment.intersectNodes.map(nodeId => {
-              const pos = positions.get(nodeId);
-              if (!pos) return '';
-              return `
-                <rect 
-                  x="${pos.x - this.config.layout.intermediateBoxSize/2 - 2}"
-                  y="${pos.y - this.config.layout.intermediateBoxSize/2 - 2}"
-                  width="${this.config.layout.intermediateBoxSize + 4}"
-                  height="${this.config.layout.intermediateBoxSize + 4}"
-                  fill="black"
-                />
-              `;
-            }).join('')}
-          </mask>
         </defs>
   
         <g class="compartment-${compartment.id}">
@@ -667,6 +738,28 @@ generateCompartments(data, positions) {
         ],
         connections: [
           {
+            targetId: "glucose2",
+            type: "main",
+            enzymes: [
+            ]
+          }
+        ],
+        style: {
+          fill: "#f0f0f0",
+          stroke: "#333333"
+        }
+      },
+      {
+        id: "glucose2",
+        label: "Glucose",
+        marks: [
+          { type: "P" },
+          { type: "O" },
+          { type: null },
+          { type: null }
+        ],
+        connections: [
+          {
             targetId: "g6p",
             type: "main",
             enzymes: [
@@ -749,15 +842,21 @@ generateCompartments(data, positions) {
         ],
         connections: [
           {
-            targetId: "ru5p",
+            targetId: "dna-node",
             type: "main",
             enzymes: [
-              {
-                id: "pgd",
-                label: "6PG\ndehydrog",
-                marker: { type: "O" }
+            ],
+            intermediateElement: {
+                label: "Incorporation",  
+                width: 120, 
+                height: 40, 
+                attachedBox: {
+                  label: "DNA-pol",
+                  side: 'right',
+                  width: 80, 
+                  height: 40
+                }
               }
-            ]
           }
         ]
       },
@@ -772,18 +871,36 @@ generateCompartments(data, positions) {
         ],
         connections: [
           {
-            targetId: "udpg",
+            targetId: "rna-node",
             type: "main",
-            enzymes: [
-              {
-                id: "ugpp",
-                label: "UDP-glucose",
-                marker: { type: "P" }
+            intermediateElement: {
+                label: "Incorporation",  
+                width: 120, 
+                height: 40,             
+                attachedBox: {
+                  label: "DNA-pol",
+                  side: 'left', 
+                  width: 80,
+                  height: 40
+                }
               }
-            ]
           }
         ]
       },
+      {
+        id: "rna-node",
+        label: "RNA",
+        type: "RNA", // Add this type to trigger RNA visualization
+
+        // ... other node properties
+      },
+      {
+        id: "dna-node",
+        label: "DNA",
+        type: "DNA", // Add this type to trigger DNA visualization
+
+        // ... other node properties
+      }
 
     ],
     config: {
