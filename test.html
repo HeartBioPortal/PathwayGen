@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBGN Diagram</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <script>
+        // Create the SVG container
+        const width = 800;
+        const height = 800;
+        const svg = d3.select('body')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Define the nodes and their positions
+        const nodes = [
+            { id: '5-aza', x: 400, y: 100, type: 'ellipse' },
+            { id: '5-aza-CMP', x: 400, y: 300, type: 'ellipse' },
+            { id: '5-aza-CDP', x: 400, y: 500, type: 'ellipse' },
+            { id: 'UGK', x: 600, y: 200, type: 'rectangle' },
+            { id: 'NMPK', x: 600, y: 400, type: 'rectangle' }
+        ];
+
+        // Define the links between the nodes
+        const links = [
+            { source: '5-aza', target: '5-aza-CMP', arrow: false },
+            { source: '5-aza-CMP', target: '5-aza-CDP', arrow: false },
+            { source: '5-aza-CMP', target: 'UGK', arrow: true },
+            { source: '5-aza-CDP', target: 'NMPK', arrow: true }
+        ];
+
+        // Draw the links
+        svg.selectAll('line')
+            .data(links)
+            .enter()
+            .append('line')
+            .attr('x1', d => nodes.find(n => n.id === d.source).x)
+            .attr('y1', d => nodes.find(n => n.id === d.source).y)
+            .attr('x2', d => nodes.find(n => n.id === d.target).x)
+            .attr('y2', d => nodes.find(n => n.id === d.target).y)
+            .attr('stroke', 'black')
+            .attr('marker-end', d => d.arrow ? 'url(#arrow)' : null);
+
+        // Define arrow marker
+        svg.append('defs')
+            .append('marker')
+            .attr('id', 'arrow')
+            .attr('viewBox', '0 0 10 10')
+            .attr('refX', 10)
+            .attr('refY', 5)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('d', 'M 0 0 L 10 5 L 0 10 Z')
+            .attr('fill', 'black');
+
+        // Draw the nodes
+        nodes.forEach(node => {
+            if (node.type === 'ellipse') {
+                svg.append('ellipse')
+                    .attr('cx', node.x)
+                    .attr('cy', node.y)
+                    .attr('rx', 80)
+                    .attr('ry', 40)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black');
+            } else if (node.type === 'rectangle') {
+                svg.append('rect')
+                    .attr('x', node.x - 40)
+                    .attr('y', node.y - 20)
+                    .attr('width', 80)
+                    .attr('height', 40)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black');
+            }
+        });
+
+        // Add labels to the nodes
+        svg.selectAll('text')
+            .data(nodes)
+            .enter()
+            .append('text')
+            .attr('x', d => d.x)
+            .attr('y', d => d.y)
+            .attr('dy', 5)
+            .attr('text-anchor', 'middle')
+            .text(d => d.id);
+    </script>
+</body>
+</html>
