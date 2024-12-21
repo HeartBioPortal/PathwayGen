@@ -190,11 +190,12 @@ export class PathwayGenerator {
         ).join(' ');
     
         return `
-          <g class="dna-helix">
-            <path d="${strand1Path}" stroke="#4299E1" fill="none" stroke-width="2"/>
-            <path d="${strand2Path}" stroke="#805AD5" fill="none" stroke-width="2"/>
-          </g>
-        `;
+                  <g class="dna-helix">
+                    <path d="${strand1Path}" stroke="#4299E1" fill="none" stroke-width="2"/>
+                    <path d="${strand2Path}" stroke="#805AD5" fill="none" stroke-width="2"/>
+                    <text x="${x + width + 10}" y="${y + height / 2}" fill="black" class="text-sm font-medium">DNA</text>
+                  </g>
+                `;
       }
     
       generateRNA(x, y, width = 100, height = 30) {
@@ -224,6 +225,8 @@ export class PathwayGenerator {
               stroke-linecap="round"
             />
           </g>
+        <text x="${x + width + 10}" y="${y + height / 2}" fill="black" class="text-sm font-medium">RNA</text>
+
         `;
       }
     generateEnzymeConnections(node, positions) {
@@ -547,7 +550,6 @@ export class PathwayGenerator {
                       stroke="black"
                       stroke-width="2"
                     />
-                    ${intermediateElement}
                     ${enzymeElements}
                   </g>
                 `;
