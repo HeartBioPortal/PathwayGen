@@ -10,7 +10,7 @@ export class PathwayConfig {
       enzymeBoxSize: config.enzymeBoxSize ?? 60,
       intermediateBoxSize: config.intermediateBoxSize ?? 20,
       width: config.width ?? 800,
-      height: 1400,
+      height: 1600,
       markerRadius: config.markerRadius ?? 8,
       defaultBranchAngle: config.defaultBranchAngle ?? 30,
       defaultBranchLength: 200
@@ -629,7 +629,7 @@ generateCompartments(data, positions) {
   
     return data.compartments.map(compartment => {
       const pos = positions.get(compartment.intersectNodes[0])
-      const y = pos.y;
+      const y = pos.y + compartment.y;
       const width = this.config.layout.width;
       
       // For arc, we'll use different parameters
@@ -722,7 +722,7 @@ generateCompartments(data, positions) {
         {
           id: "nucleus",
           label: "Nucleus",
-          y: 700,
+          y: -100,
           color: "#9999FF",
           strokeWidth: 3,
           intersectNodes: ["6pg", "g1p"], // Example nodes
@@ -794,7 +794,7 @@ generateCompartments(data, positions) {
         ],
         connections: [
           {
-            targetId: "6pg",
+            targetId: "jn9",
             type: "branch",
             angle: 35,
             length: 200,
@@ -812,7 +812,7 @@ generateCompartments(data, positions) {
             ]
           },
           {
-            targetId: "g1p",
+            targetId: "lkj3",
             type: "branch",
             angle: -35,
             length: 180,
@@ -832,6 +832,43 @@ generateCompartments(data, positions) {
         ]
       },
 
+      {
+        id: "jn9",
+        label: "6-Phosphogl",
+        marks: [
+          { type: "P" },
+          { type: "O" },
+          { type: null },
+          { type: "P" }
+        ],
+        connections: [
+          {
+            targetId: "6pg",
+            type: "main",
+            enzymes: [
+            ],
+          }
+        ]
+      },
+
+      {
+        id: "lkj3",
+        label: "6-Phosphogl",
+        marks: [
+          { type: "P" },
+          { type: "O" },
+          { type: null },
+          { type: "P" }
+        ],
+        connections: [
+          {
+            targetId: "g1p",
+            type: "main",
+            enzymes: [
+            ],
+          }
+        ]
+      },
       // Branch pathway endpoints
       {
         id: "6pg",
@@ -907,7 +944,7 @@ generateCompartments(data, positions) {
     ],
     config: {
       // Custom configuration for this specific pathway
-      height:1200,
+      height:1400,
       nodeWidth: 200,
       nodeHeight: 70,
       verticalSpacing: 140,
