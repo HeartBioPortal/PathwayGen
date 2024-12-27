@@ -858,7 +858,7 @@ generateCompartments(data, positions) {
           { type: "P" },
           { type: "O" },
           { type: null },
-          { type: "P" }
+          { type: "o" }
         ],
         connections: [
           {
@@ -877,7 +877,7 @@ generateCompartments(data, positions) {
           { type: "P" },
           { type: "O" },
           { type: null },
-          { type: "P" }
+          { type: null }
         ],
         connections: [
           {
