@@ -876,7 +876,7 @@ generateCompartments(data, positions) {
         marks: [
           { type: "P" },
           { type: "O" },
-          { type: null },
+          { type: "p" },
           { type: null }
         ],
         connections: [
