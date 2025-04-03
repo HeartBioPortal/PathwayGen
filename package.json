@@ -1,0 +1,38 @@
+{
+  "name": "pathway-gen",
+  "version": "1.0.0",
+  "description": "SBGN-compliant biological pathway visualization tool",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "babel src -d dist",
+    "start": "node examples/basic.js",
+    "lint": "eslint src/**/*.js",
+    "docs": "jsdoc -c jsdoc.json"
+  },
+  "keywords": [
+    "sbgn",
+    "pathway",
+    "visualization",
+    "biology",
+    "svg",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^7.8.5",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

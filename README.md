@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PathwayGen
 
 PathwayGen is a JavaScript library for generating interactive metabolic pathway diagrams with SVG. It specializes in creating visual representations of biochemical pathways, including compounds, enzymes, and their relationships.
@@ -12,10 +13,25 @@ PathwayGen is a JavaScript library for generating interactive metabolic pathway 
 - 📐 Flexible layout system
 - 🎯 Interactive elements with hover effects
 - 📱 Responsive SVG output
+=======
+# SBGN Pathway Visualization
+
+A JavaScript library for visualizing biological pathways using the Systems Biology Graphical Notation (SBGN) standard. This package generates SVG visualizations of metabolic pathways, signaling networks, and other biological processes.
+
+## Features
+
+- SBGN-compliant pathway visualization
+- SVG-based rendering for high-quality graphics
+- Customizable themes and styles
+- Support for various node types (metabolites, proteins, genes, etc.)
+- Compartment visualization for cellular localization
+- Programmatic API for pathway creation
+>>>>>>> f3228f5 (convert to a npm package, bug fixes and other improvements)
 
 ## Installation
 
 ```bash
+<<<<<<< HEAD
 npm install pathwaygen
 # or
 yarn add pathwaygen
@@ -141,3 +157,41 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the GNU Affero General Public License - see the [LICENSE](https://github.com/HeartBioPortal/PathwayGen/blob/main/LICENCE) file for details.
+=======
+npm install pathway-gen
+```
+
+## Basic Usage
+
+```javascript
+const { SBGNPathway } = require('pathway-gen');
+
+// Create a new pathway visualization
+const pathway = new SBGNPathway();
+
+// Define your pathway data
+const data = {
+  nodes: [
+    // Node definitions
+  ],
+  compartments: [
+    // Compartment definitions
+  ]
+};
+
+// Generate SVG
+const svg = pathway.generateSVG(data);
+```
+
+## Documentation
+
+For full documentation, see the [docs](./docs/) directory.
+
+## Examples
+
+Check out the [examples](./examples/) directory for usage examples.
+
+## License
+
+MIT
+>>>>>>> f3228f5 (convert to a npm package, bug fixes and other improvements)
