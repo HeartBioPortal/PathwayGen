@@ -172,25 +172,28 @@ class NodeRenderer {
   renderDoubleEllipse(x, y, style) {
     // Calculate inner ellipse dimensions - make it slightly smaller
     const innerPadding = 5; // Space between ellipses
-    const innerRx = this.config.layout.nodeWidth / 2 - innerPadding;
-    const innerRy = this.config.layout.nodeHeight / 2 - innerPadding;
+    const rx = this.config.layout.nodeWidth / 2; // Outer ellipse rx (width)
+    const ry = this.config.layout.nodeHeight / 2; // Outer ellipse ry (height)
+    const innerRx = rx - innerPadding;
+    const innerRy = ry - innerPadding;
     
     const dropShadowAttr = style.dropShadow ? 'filter="url(#dropShadow)"' : '';
     
+    // Use adapted approach from original pathway code
     return `
       <!-- Outer ellipse -->
       <ellipse
         cx="${x}"
         cy="${y}"
-        rx="${this.config.layout.nodeWidth / 2}"
-        ry="${this.config.layout.nodeHeight / 2}"
+        rx="${rx}"
+        ry="${ry}"
         fill="${style.fill || 'white'}"
         stroke="${style.stroke || 'black'}"
         stroke-width="${style.strokeWidth || 2}"
         ${dropShadowAttr}
       />
-      ${style.innerStroke ? `
-        <!-- Inner ellipse -->
+      ${style.innerStroke !== false ? `
+        <!-- Inner ellipse - following SBGN convention for simple chemicals -->
         <ellipse
           cx="${x}"
           cy="${y}"
@@ -239,14 +242,32 @@ class NodeRenderer {
    * @returns {string} SVG markup for a circle
    */
   renderCircle(x, y, style) {
-    const radius = Math.min(this.config.layout.nodeWidth, this.config.layout.nodeHeight) / 2;
+    // For simple chemicals in SBGN, use ellipses with inner ellipse for better presentation
+    // This is more aligned with the original pathway_original.js implementation
+    const rx = this.config.layout.nodeWidth / 2;
+    const ry = this.config.layout.nodeHeight / 2;
+    const innerPadding = 5;
+    const innerRx = rx - innerPadding;
+    const innerRy = ry - innerPadding;
     
     return `
-      <circle
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
         cx="${x}"
         cy="${y}"
-        r="${radius}"
+        rx="${rx}"
+        ry="${ry}"
         fill="${style.fill || 'white'}"
+        stroke="${style.stroke || 'black'}"
+        stroke-width="${style.strokeWidth || 2}"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="${x}"
+        cy="${y}"
+        rx="${innerRx}"
+        ry="${innerRy}"
+        fill="none"
         stroke="${style.stroke || 'black'}"
         stroke-width="${style.strokeWidth || 2}"
       />
