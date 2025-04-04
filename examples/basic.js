@@ -26,9 +26,14 @@ const data = {
           type: "main",
           enzymes: [
             { 
-              id: "hexokinase",
-              label: "Hexokinase",
+              id: "hexokinase1",
+              label: "HK1",
               marker: { type: "P" }
+            },
+            { 
+              id: "hexokinase2",
+              label: "HK2",
+              marker: { type: "O" }
             }
           ]
         }
@@ -50,9 +55,14 @@ const data = {
           type: "main",
           enzymes: [
             {
-              id: "pgi",
-              label: "PGI",
+              id: "pgi1",
+              label: "PGI-A",
               marker: { type: "P" }
+            },
+            {
+              id: "pgi2",
+              label: "PGI-B",
+              marker: { type: "O" }
             }
           ]
         }

@@ -1,0 +1,2430 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg 
+  xmlns="http://www.w3.org/2000/svg"
+  width="800" 
+  height="3027.4473679720186"
+  viewBox="0 0 800 3027.4473679720186"
+  class="sbgn-pathway bg-white shadow-lg rounded-lg"
+  
+      data-interactive="true"
+      data-enable-zoom="true"
+      data-enable-pan="true"
+      data-enable-tooltips="true"
+      data-tooltip-delay="500"
+    
+>
+  <style>
+    .sbgn-node { cursor: pointer; }
+    .sbgn-node:hover { stroke: #3182CE; stroke-width: 3px; }
+    .sbgn-enzyme { cursor: pointer; }
+    .sbgn-enzyme:hover { stroke: #3182CE; stroke-width: 2px; }
+    .sbgn-compartment-label { font-family: Arial, sans-serif; }
+    /* Add more styles here */
+  </style>
+  <defs>
+    <!-- Compartment gradients will be added here by compartment renderer -->
+    <linearGradient id="global-compartment-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#E2E8F0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#E2E8F0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g id="pathway-content-wrapper">
+    
+      <defs>
+        <!-- Standard arrowhead -->
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="9"
+          refY="3.5"
+          orient="auto"
+        >
+          <polygon 
+            points="0 0, 10 3.5, 0 7" 
+            fill="black" 
+          />
+        </marker>
+        
+        <!-- Inhibition marker (bar) -->
+        <marker
+          id="inhibition"
+          markerWidth="10"
+          markerHeight="10"
+          refX="9"
+          refY="5"
+          orient="auto"
+        >
+          <line 
+            x1="0" y1="0" 
+            x2="0" y2="10" 
+            stroke="black" 
+            stroke-width="2"
+          />
+        </marker>
+        
+        <!-- Catalysis marker (circle) -->
+        <marker
+          id="catalysis"
+          markerWidth="10"
+          markerHeight="10"
+          refX="10"
+          refY="5"
+          orient="auto"
+        >
+          <circle 
+            cx="5" 
+            cy="5" 
+            r="4" 
+            fill="white" 
+            stroke="black" 
+            stroke-width="1"
+          />
+        </marker>
+        
+        <!-- Stimulation marker (open arrow) -->
+        <marker
+          id="stimulation"
+          markerWidth="10"
+          markerHeight="8"
+          refX="9"
+          refY="4"
+          orient="auto"
+        >
+          <polyline 
+            points="0 0, 8 4, 0 8" 
+            fill="none" 
+            stroke="black" 
+            stroke-width="1.5"
+          />
+        </marker>
+      
+        
+      <!-- Drop shadow filter -->
+      <filter id="dropShadow" height="130%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/> 
+        <feOffset dx="2" dy="2" result="offsetblur"/>
+        <feComponentTransfer>
+          <feFuncA type="linear" slope="0.2"/>
+        </feComponentTransfer>
+        <feMerge> 
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/> 
+        </feMerge>
+      </filter>
+    
+          
+        <!-- Node gradient -->
+        <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+          <stop offset="100%" stop-color="#F7FAFC" stop-opacity="1" />
+        </linearGradient>
+        
+        <!-- Enzyme gradient -->
+        <linearGradient id="enzymeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+          <stop offset="100%" stop-color="#EDF2F7" stop-opacity="1" />
+        </linearGradient>
+      </defs>
+    
+        <g 
+          class="sbgn-compartment" 
+          data-compartment-id="cytosol"
+          data-compartment-type="default"
+        >
+          <!-- Background fill -->
+          <path
+            d="M 0 20
+               L 800 20
+               L 800 220
+               L 0 220
+               Z"
+            fill="url(#global-compartment-gradient)"
+          />
+          
+          <!-- Double arc lines - adapted from original implementation -->
+          <path
+            d="M 0 120 
+               Q 400 70 800 120"
+            fill="none"
+            stroke="#E2E8F0"
+            stroke-width="3"
+            stroke-opacity="0.8"
+          />
+          <path
+            d="M 0 130 
+               Q 400 80 800 130"
+            fill="none"
+            stroke="#E2E8F0"
+            stroke-width="3"
+            stroke-opacity="0.8"
+          />
+          
+          <!-- Compartment label -->
+          <text
+            x="20"
+            y="90"
+            fill="#E2E8F0"
+            font-weight="bold"
+            font-family="Arial, sans-serif"
+            font-size="14"
+            class="sbgn-compartment-label"
+          >Cytosol</text>
+        </g>
+      
+        <g 
+          class="sbgn-compartment" 
+          data-compartment-id="mitochondria"
+          data-compartment-type="default"
+        >
+          <!-- Background fill -->
+          <path
+            d="M 0 3267.4473679720186
+               L 800 3267.4473679720186
+               L 800 3467.4473679720186
+               L 0 3467.4473679720186
+               Z"
+            fill="url(#global-compartment-gradient)"
+          />
+          
+          <!-- Double arc lines - adapted from original implementation -->
+          <path
+            d="M 0 3367.4473679720186 
+               Q 400 3317.4473679720186 800 3367.4473679720186"
+            fill="none"
+            stroke="#FEB2B2"
+            stroke-width="3"
+            stroke-opacity="0.8"
+          />
+          <path
+            d="M 0 3377.4473679720186 
+               Q 400 3327.4473679720186 800 3377.4473679720186"
+            fill="none"
+            stroke="#FEB2B2"
+            stroke-width="3"
+            stroke-opacity="0.8"
+          />
+          
+          <!-- Compartment label -->
+          <text
+            x="20"
+            y="3337.4473679720186"
+            fill="#FEB2B2"
+            font-weight="bold"
+            font-family="Arial, sans-serif"
+            font-size="14"
+            class="sbgn-compartment-label"
+          >Mitochondrion</text>
+        </g>
+      
+      <g class="sbgn-connections" data-source-node-id="glucose">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="glucose-g6p">
+        
+        <path
+          d="M 400 145
+             L 400 335"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="230"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="hexokinase">
+          <rect
+            x="230"
+            y="170"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="200"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >Hexokinase</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="170"
+          r="8"
+          fill="#ffd700"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="230"
+            y="170"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="g6p">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="g6p-f6p">
+        
+        <path
+          d="M 400 385
+             L 400 575"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="470"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pgi">
+          <rect
+            x="230"
+            y="410"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="440"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >PGI</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="410"
+          r="8"
+          fill="#ffd700"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="230"
+            y="410"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+      <g class="sbgn-connection sbgn-branch" data-connection-id="g6p-6pgd">
+        
+        <path
+          d="M 400 385
+             L 514.7152872702093 498.8304088577984"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="447.35764363510464"
+            y="431.9152044288992"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="g6pd">
+          <rect
+            x="567.3576436351046"
+            y="371.9152044288992"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="597.3576436351046"
+            y="401.9152044288992"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >G6PDH</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="567.3576436351046"
+          cy="371.9152044288992"
+          r="8"
+          fill="#ffd700"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="567.3576436351046"
+            y="371.9152044288992"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="f6p">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="f6p-f16bp">
+        
+        <path
+          d="M 400 625
+             L 400 815"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="710"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        <g class="sbgn-intermediate-element sbgn-process">
+          
+        <rect
+          x="390"
+          y="710"
+          width="20"
+          height="20"
+          fill="white"
+          stroke="black"
+          stroke-width="2"
+        />
+      
+          <text
+            x="400"
+            y="775"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="12"
+            class="sbgn-intermediate-label"
+          >Phosphorylation</text>
+        
+        </g>
+      
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pfk">
+          <rect
+            x="230"
+            y="650"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="680"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >PFK-1</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="650"
+          r="8"
+          fill="#ffd700"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="230"
+            y="650"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="f16bp">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="f16bp-gap">
+        
+        <path
+          d="M 400 865
+             L 400 1055"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="950"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="aldolase">
+          <rect
+            x="230"
+            y="890"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="920"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >Aldolase</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="890"
+          r="8"
+          fill="white"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="gap">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="gap-bpg">
+        
+        <path
+          d="M 400 1105
+             L 400 1295"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="1190"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="gapdh">
+          <rect
+            x="230"
+            y="1130"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="1160"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >GAPDH</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="1130"
+          r="8"
+          fill="#ff6b6b"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="230"
+            y="1130"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="bpg">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="bpg-3pg">
+        
+        <path
+          d="M 400 1345
+             L 400 1535"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="1430"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pgk">
+          <rect
+            x="230"
+            y="1370"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="1400"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >PGK</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="1370"
+          r="8"
+          fill="white"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="3pg">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="3pg-2pg">
+        
+        <path
+          d="M 400 1585
+             L 400 1775"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="1670"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pgm">
+          <rect
+            x="230"
+            y="1610"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="1640"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >PGM</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="1610"
+          r="8"
+          fill="white"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="2pg">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="2pg-pep">
+        
+        <path
+          d="M 400 1825
+             L 400 2015"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="1910"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="enolase">
+          <rect
+            x="230"
+            y="1850"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="1880"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >Enolase</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="1850"
+          r="8"
+          fill="white"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="pep">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="pep-pyruvate">
+        
+        <path
+          d="M 400 2065
+             L 400 2255"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="390"
+            y="2150"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pk">
+          <rect
+            x="230"
+            y="2090"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="260"
+            y="2120"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >Pyruvate Kinase</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="230"
+          cy="2090"
+          r="8"
+          fill="white"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="pyruvate">
+        
+      <g class="sbgn-connection sbgn-branch" data-connection-id="pyruvate-lactate">
+        
+        <path
+          d="M 400 2305
+             L 296.7562414568117 2642.4473679720186"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="338.37812072840586"
+            y="2463.7236839860093"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="ldh">
+          <rect
+            x="178.37812072840586"
+            y="2403.7236839860093"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="208.37812072840586"
+            y="2433.7236839860093"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >LDH</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="178.37812072840586"
+          cy="2403.7236839860093"
+          r="8"
+          fill="#ff6b6b"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="178.37812072840586"
+            y="2403.7236839860093"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+      <g class="sbgn-connection sbgn-branch" data-connection-id="pyruvate-acetylcoa">
+        
+        <path
+          d="M 400 2305
+             L 503.2437585431883 2642.4473679720186"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="441.62187927159414"
+            y="2463.7236839860093"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        
+        <g class="sbgn-enzyme" data-enzyme-id="pdhc">
+          <rect
+            x="561.6218792715941"
+            y="2403.7236839860093"
+            width="60"
+            height="60"
+            fill="#ffffff"
+            stroke="#2a4365"
+            stroke-width="1.5"
+            rx="0"
+            ry="0"
+            class="cursor-pointer hover:stroke-blue-500"
+          />
+          <text
+            x="591.6218792715941"
+            y="2433.7236839860093"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="10"
+            class="sbgn-enzyme-label"
+          >PDHC</text>
+          
+      <g class="sbgn-enzyme-marker">
+        <circle
+          cx="561.6218792715941"
+          cy="2403.7236839860093"
+          r="8"
+          fill="#ff6b6b"
+          stroke="black"
+          stroke-width="1"
+        />
+        
+          <text
+            x="561.6218792715941"
+            y="2403.7236839860093"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        
+      </g>
+    
+        </g>
+      
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="acetylcoa">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="acetylcoa-tca">
+        
+        <path
+          d="M 503.2437585431883 2692.4473679720186
+             L 503.2437585431883 2882.4473679720186"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="493.2437585431883"
+            y="2777.4473679720186"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        <g class="sbgn-intermediate-element sbgn-process">
+          
+        <rect
+          x="493.2437585431883"
+          y="2777.4473679720186"
+          width="20"
+          height="20"
+          fill="white"
+          stroke="black"
+          stroke-width="2"
+        />
+      
+          <text
+            x="503.2437585431883"
+            y="2842.4473679720186"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="12"
+            class="sbgn-intermediate-label"
+          >TCA Cycle</text>
+        
+        </g>
+      
+        
+      </g>
+    
+        
+        
+      </g>
+    
+      <g class="sbgn-connections" data-source-node-id="6pgd">
+        
+      <g class="sbgn-connection sbgn-main" data-connection-id="6pgd-ppp">
+        
+        <path
+          d="M 514.7152872702093 548.8304088577984
+             L 514.7152872702093 738.8304088577984"
+          stroke="black"
+          stroke-width="2"
+          
+          fill="none"
+          marker-end="url(#arrowhead)"
+          class=""
+        />
+      
+          <rect
+            x="504.7152872702093"
+            y="633.8304088577984"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+            stroke-width="2"
+          />
+        
+        <g class="sbgn-intermediate-element sbgn-process">
+          
+        <rect
+          x="504.7152872702093"
+          y="633.8304088577984"
+          width="20"
+          height="20"
+          fill="white"
+          stroke="black"
+          stroke-width="2"
+        />
+      
+          <text
+            x="514.7152872702093"
+            y="698.8304088577984"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="Arial, sans-serif"
+            font-size="12"
+            class="sbgn-intermediate-label"
+          >Pentose Phosphate Pathway</text>
+        
+        </g>
+      
+        
+      </g>
+    
+        
+        
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="glucose"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="120"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="120"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="105"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="105"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="105"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="105"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="120"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Glucose</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="g6p"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="360"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="360"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="345"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="345"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="480"
+            cy="345"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="345"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="320"
+            cy="375"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="375"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="360"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Glucose-6-Phosphate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="f6p"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="600"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="600"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="585"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="585"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="585"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="585"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="480"
+            cy="615"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="615"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="600"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Fructose-6-Phosphate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="f16bp"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="840"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="840"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="825"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="825"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="480"
+            cy="825"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="825"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="320"
+            cy="855"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="855"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="840"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Fructose-1,6-Bisphosphate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="gap"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="1080"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="1080"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="1065"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="1065"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="1065"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="1065"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="1080"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Glyceraldehyde-3-Phosphate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="bpg"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="1320"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="1320"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="1305"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="1305"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="480"
+            cy="1305"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="1305"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="320"
+            cy="1335"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="1335"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="1320"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >1,3-Bisphosphoglycerate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="3pg"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="1560"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="1560"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="1545"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="1545"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="1545"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="1545"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="1560"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >3-Phosphoglycerate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="2pg"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="1800"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="1800"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="1785"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="1785"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="1785"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="1785"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="1800"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >2-Phosphoglycerate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="pep"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="2040"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="2040"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="320"
+            cy="2025"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="2025"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="2025"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="2025"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="2040"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Phosphoenolpyruvate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="pyruvate"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="400"
+        cy="2280"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="2280"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="320"
+            cy="2265"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="320"
+            y="2265"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="480"
+            cy="2265"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="480"
+            y="2265"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="400"
+        y="2280"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Pyruvate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="lactate"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="296.7562414568117"
+        cy="2667.4473679720186"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="296.7562414568117"
+        cy="2667.4473679720186"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="216.75624145681172"
+            cy="2652.4473679720186"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="216.75624145681172"
+            y="2652.4473679720186"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="376.7562414568117"
+            cy="2652.4473679720186"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="376.7562414568117"
+            y="2652.4473679720186"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="296.7562414568117"
+        y="2667.4473679720186"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Lactate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="acetylcoa"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="503.2437585431883"
+        cy="2667.4473679720186"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="503.2437585431883"
+        cy="2667.4473679720186"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="S">
+          <circle
+            cx="423.2437585431883"
+            cy="2652.4473679720186"
+            r="8"
+            fill="#4CAF50"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="423.2437585431883"
+            y="2652.4473679720186"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >S</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="583.2437585431883"
+            cy="2652.4473679720186"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="583.2437585431883"
+            y="2652.4473679720186"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="503.2437585431883"
+        y="2667.4473679720186"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Acetyl-CoA</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="tca"
+        data-node-type="process"
+        
+      >
+        
+      <rect
+        x="493.2437585431883"
+        y="2897.4473679720186"
+        width="20"
+        height="20"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        
+      <text
+        x="503.2437585431883"
+        y="2907.4473679720186"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >TCA Cycle</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="6pgd"
+        data-node-type="simpleChemical"
+        
+      >
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
+        cx="514.7152872702093"
+        cy="523.8304088577984"
+        rx="90"
+        ry="25"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="514.7152872702093"
+        cy="523.8304088577984"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        <g class="sbgn-marker" data-marker-type="P">
+          <circle
+            cx="434.7152872702093"
+            cy="508.8304088577984"
+            r="8"
+            fill="#ffd700"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="434.7152872702093"
+            y="508.8304088577984"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >P</text>
+        </g>
+      
+        <g class="sbgn-marker" data-marker-type="O">
+          <circle
+            cx="594.7152872702093"
+            cy="508.8304088577984"
+            r="8"
+            fill="#ff6b6b"
+            stroke="black"
+            stroke-width="1"
+          />
+          <text
+            x="594.7152872702093"
+            y="508.8304088577984"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-weight="bold"
+            font-size="10"
+          >O</text>
+        </g>
+      
+        
+      <text
+        x="514.7152872702093"
+        y="523.8304088577984"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >6-Phosphogluconate</text>
+    
+      </g>
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
+        data-node-id="ppp"
+        data-node-type="process"
+        
+      >
+        
+      <rect
+        x="504.7152872702093"
+        y="753.8304088577984"
+        width="20"
+        height="20"
+        fill="#f5f5f5"
+        stroke="#2a4365"
+        stroke-width="2"
+      />
+    
+        
+        
+      <text
+        x="514.7152872702093"
+        y="763.8304088577984"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="normal"
+        class="sbgn-node-label"
+      >Pentose Phosphate Pathway</text>
+    
+      </g>
+    
+  </g>
+</svg>

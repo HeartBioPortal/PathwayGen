@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathwayGen Diagram Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .svg-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+        }
+        .svg-container h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .svg-display {
+            overflow: auto;
+            max-height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PathwayGen Diagram Viewer</h1>
+    
+    <div class="container">
+        <div class="svg-container">
+            <h2>Basic Example with Enzyme Connections</h2>
+            <div id="basic-example" class="svg-display"></div>
+        </div>
+        
+        <div class="svg-container">
+            <h2>Metabolic Pathway Example</h2>
+            <div id="metabolic-example" class="svg-display"></div>
+        </div>
+        
+        <div class="svg-container">
+            <h2>Signal Pathway Example</h2>
+            <div id="signal-example" class="svg-display"></div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to load SVG content
+        function loadSVG(svgPath, elementId) {
+            fetch(svgPath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${svgPath}`);
+                    }
+                    return response.text();
+                })
+                .then(svgContent => {
+                    // Clean up any potential trailing text
+                    if (svgContent.includes('</svg>')) {
+                        const svgOnly = svgContent.substring(0, svgContent.indexOf('</svg>') + 6);
+                        document.getElementById(elementId).innerHTML = svgOnly;
+                    } else {
+                        document.getElementById(elementId).innerHTML = svgContent;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading SVG:', error);
+                    document.getElementById(elementId).innerHTML = 
+                        `<p style="color: red">Error loading SVG: ${error.message}</p>`;
+                });
+        }
+        
+        // Load all SVGs
+        loadSVG('./output/basic-enzyme-connections.svg', 'basic-example');
+        loadSVG('./output/metabolicPathway-clean.svg', 'metabolic-example');
+        loadSVG('./output/signalPathway-clean.svg', 'signal-example');
+    </script>
+</body>
+</html>

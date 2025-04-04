@@ -27,6 +27,17 @@ The library implements the SBGN Process Description (PD) language, which shows t
 npm install pathway-gen
 ```
 
+## Visualization Viewer
+
+After generating SVGs, you can view them using the included HTML viewer:
+
+1. Create SVGs using the examples
+```bash
+node examples/basic.js > output/basic.svg
+```
+
+2. Open the test.html file in your browser to view the generated pathways
+
 ## Basic Usage
 
 ```javascript

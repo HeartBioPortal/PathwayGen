@@ -1,118 +1,135 @@
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="800"
-        height="720"
-        viewBox="0 0 800 720"
-        class="sbgn-pathway bg-white shadow-lg rounded-lg"
-        data-interactive="true" data-enable-zoom="true" data-enable-pan="true" data-enable-tooltips="true" data-tooltip-delay="500"
-      >
-        <style>
-          .sbgn-node { cursor: pointer; }
-          .sbgn-node:hover { stroke: #3182CE; stroke-width: 3px; }
-          .sbgn-enzyme { cursor: pointer; }
-          .sbgn-enzyme:hover { stroke: #3182CE; stroke-width: 2px; }
-          .sbgn-compartment-label { font-family: Arial, sans-serif; }
-          /* Add more styles here */
-        </style>
-        <g id="pathway-content-wrapper">
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg 
+  xmlns="http://www.w3.org/2000/svg"
+  width="800" 
+  height="720"
+  viewBox="0 0 800 720"
+  class="sbgn-pathway bg-white shadow-lg rounded-lg"
+  
+      data-interactive="true"
+      data-enable-zoom="true"
+      data-enable-pan="true"
+      data-enable-tooltips="true"
+      data-tooltip-delay="500"
+    
+>
+  <style>
+    .sbgn-node { cursor: pointer; }
+    .sbgn-node:hover { stroke: #3182CE; stroke-width: 3px; }
+    .sbgn-enzyme { cursor: pointer; }
+    .sbgn-enzyme:hover { stroke: #3182CE; stroke-width: 2px; }
+    .sbgn-compartment-label { font-family: Arial, sans-serif; }
+    /* Add more styles here */
+  </style>
+  <defs>
+    <!-- Compartment gradients will be added here by compartment renderer -->
+    <linearGradient id="global-compartment-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#E2E8F0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#E2E8F0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g id="pathway-content-wrapper">
+    
       <defs>
-
-      <!-- Standard arrowhead -->
-      <marker
-        id="arrowhead"
-        markerWidth="10"
-        markerHeight="7"
-        refX="9"
-        refY="3.5"
-        orient="auto"
-      >
-        <polygon
-          points="0 0, 10 3.5, 0 7"
-          fill="#333333"
-        />
-      </marker>
-
-      <!-- Inhibition marker (bar) -->
-      <marker
-        id="inhibition"
-        markerWidth="10"
-        markerHeight="10"
-        refX="9"
-        refY="5"
-        orient="auto"
-      >
-        <line
-          x1="0" y1="0"
-          x2="0" y2="10"
-          stroke="#333333"
-          stroke-width="2"
-        />
-      </marker>
-
-      <!-- Catalysis marker (circle) -->
-      <marker
-        id="catalysis"
-        markerWidth="10"
-        markerHeight="10"
-        refX="10"
-        refY="5"
-        orient="auto"
-      >
-        <circle
-          cx="5"
-          cy="5"
-          r="4"
-          fill="white"
-          stroke="#333333"
-          stroke-width="1"
-        />
-      </marker>
-
-      <!-- Stimulation marker (open arrow) -->
-      <marker
-        id="stimulation"
-        markerWidth="10"
-        markerHeight="8"
-        refX="9"
-        refY="4"
-        orient="auto"
-      >
-        <polyline
-          points="0 0, 8 4, 0 8"
-          fill="none"
-          stroke="#333333"
-          stroke-width="1.5"
-        />
-      </marker>
-
-
-
-      <!-- Node gradient -->
-      <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
-        <stop offset="100%" stop-color="#F7FAFC" stop-opacity="1" />
-      </linearGradient>
-
-      <!-- Enzyme gradient -->
-      <linearGradient id="enzymeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
-        <stop offset="100%" stop-color="#EDF2F7" stop-opacity="1" />
-      </linearGradient>
-
+        <!-- Standard arrowhead -->
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="9"
+          refY="3.5"
+          orient="auto"
+        >
+          <polygon 
+            points="0 0, 10 3.5, 0 7" 
+            fill="black" 
+          />
+        </marker>
+        
+        <!-- Inhibition marker (bar) -->
+        <marker
+          id="inhibition"
+          markerWidth="10"
+          markerHeight="10"
+          refX="9"
+          refY="5"
+          orient="auto"
+        >
+          <line 
+            x1="0" y1="0" 
+            x2="0" y2="10" 
+            stroke="black" 
+            stroke-width="2"
+          />
+        </marker>
+        
+        <!-- Catalysis marker (circle) -->
+        <marker
+          id="catalysis"
+          markerWidth="10"
+          markerHeight="10"
+          refX="10"
+          refY="5"
+          orient="auto"
+        >
+          <circle 
+            cx="5" 
+            cy="5" 
+            r="4" 
+            fill="white" 
+            stroke="black" 
+            stroke-width="1"
+          />
+        </marker>
+        
+        <!-- Stimulation marker (open arrow) -->
+        <marker
+          id="stimulation"
+          markerWidth="10"
+          markerHeight="8"
+          refX="9"
+          refY="4"
+          orient="auto"
+        >
+          <polyline 
+            points="0 0, 8 4, 0 8" 
+            fill="none" 
+            stroke="black" 
+            stroke-width="1.5"
+          />
+        </marker>
+      
+        
+      <!-- Drop shadow filter -->
+      <filter id="dropShadow" height="130%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/> 
+        <feOffset dx="2" dy="2" result="offsetblur"/>
+        <feComponentTransfer>
+          <feFuncA type="linear" slope="0.2"/>
+        </feComponentTransfer>
+        <feMerge> 
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/> 
+        </feMerge>
+      </filter>
+    
+          
+        <!-- Node gradient -->
+        <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+          <stop offset="100%" stop-color="#F7FAFC" stop-opacity="1" />
+        </linearGradient>
+        
+        <!-- Enzyme gradient -->
+        <linearGradient id="enzymeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+          <stop offset="100%" stop-color="#EDF2F7" stop-opacity="1" />
+        </linearGradient>
       </defs>
-
-        <!-- Gradient definition -->
-        <defs>
-          <linearGradient id="gradient-cell" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#E2E8F0" stop-opacity="0"/>
-            <stop offset="50%" stop-color="#E2E8F0" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="#E2E8F0" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-
-        <g
-          class="sbgn-compartment"
+    
+        <g 
+          class="sbgn-compartment" 
           data-compartment-id="cell"
           data-compartment-type="default"
         >
@@ -123,12 +140,12 @@
                L 800 220
                L 0 220
                Z"
-            fill="url(#gradient-cell)"
+            fill="url(#global-compartment-gradient)"
           />
-
-          <!-- Double arc lines -->
+          
+          <!-- Double arc lines - adapted from original implementation -->
           <path
-            d="M 0 120
+            d="M 0 120 
                Q 400 70 800 120"
             fill="none"
             stroke="#E2E8F0"
@@ -136,14 +153,14 @@
             stroke-opacity="0.8"
           />
           <path
-            d="M 0 130
+            d="M 0 130 
                Q 400 80 800 130"
             fill="none"
             stroke="#E2E8F0"
             stroke-width="2"
             stroke-opacity="0.8"
           />
-
+          
           <!-- Compartment label -->
           <text
             x="20"
@@ -155,45 +172,45 @@
             class="sbgn-compartment-label"
           >Cell</text>
         </g>
-
+      
       <g class="sbgn-connections" data-source-node-id="glucose">
-
+        
       <g class="sbgn-connection sbgn-main" data-connection-id="glucose-g6p">
-
+        
         <path
           d="M 400 145
              L 400 335"
-          stroke="#333333"
+          stroke="black"
           stroke-width="2"
-
+          
           fill="none"
           marker-end="url(#arrowhead)"
-          class="sbgn-connection"
+          class=""
         />
-
+      
           <rect
             x="390"
             y="230"
             width="20"
             height="20"
             fill="white"
-            stroke="#333333"
+            stroke="black"
             stroke-width="2"
           />
-
-
+        
+        
         <g class="sbgn-enzyme" data-enzyme-id="hexokinase">
           <rect
             x="230"
             y="170"
             width="60"
             height="60"
-            fill="#FFFFFF"
-            stroke="#333333"
+            fill="white"
+            stroke="black"
             stroke-width="2"
             rx="0"
             ry="0"
-            class="sbgn-enzyme cursor-pointer hover:stroke-blue-500"
+            class="cursor-pointer hover:stroke-blue-500"
           />
           <text
             x="260"
@@ -204,7 +221,7 @@
             font-size="10"
             class="sbgn-enzyme-label"
           >Hexokinase</text>
-
+          
       <g class="sbgn-enzyme-marker">
         <circle
           cx="230"
@@ -214,7 +231,7 @@
           stroke="black"
           stroke-width="1"
         />
-
+        
           <text
             x="230"
             y="170"
@@ -223,55 +240,55 @@
             font-weight="bold"
             font-size="10"
           >P</text>
-
+        
       </g>
-
+    
         </g>
-
+      
       </g>
-
-
-
+    
+        
+        
       </g>
-
+    
       <g class="sbgn-connections" data-source-node-id="g6p">
-
+        
       <g class="sbgn-connection sbgn-main" data-connection-id="g6p-f6p">
-
+        
         <path
           d="M 400 385
              L 400 575"
-          stroke="#333333"
+          stroke="black"
           stroke-width="2"
-
+          
           fill="none"
           marker-end="url(#arrowhead)"
-          class="sbgn-connection"
+          class=""
         />
-
+      
           <rect
             x="390"
             y="470"
             width="20"
             height="20"
             fill="white"
-            stroke="#333333"
+            stroke="black"
             stroke-width="2"
           />
-
-
+        
+        
         <g class="sbgn-enzyme" data-enzyme-id="pgi">
           <rect
             x="230"
             y="410"
             width="60"
             height="60"
-            fill="#FFFFFF"
-            stroke="#333333"
+            fill="white"
+            stroke="black"
             stroke-width="2"
             rx="0"
             ry="0"
-            class="sbgn-enzyme cursor-pointer hover:stroke-blue-500"
+            class="cursor-pointer hover:stroke-blue-500"
           />
           <text
             x="260"
@@ -282,7 +299,7 @@
             font-size="10"
             class="sbgn-enzyme-label"
           >PGI</text>
-
+          
       <g class="sbgn-enzyme-marker">
         <circle
           cx="230"
@@ -292,7 +309,7 @@
           stroke="black"
           stroke-width="1"
         />
-
+        
           <text
             x="230"
             y="410"
@@ -301,34 +318,46 @@
             font-weight="bold"
             font-size="10"
           >P</text>
-
+        
       </g>
-
+    
         </g>
-
+      
       </g>
-
-
-
+    
+        
+        
       </g>
-
-      <g
-        class="sbgn-node sbgn-node cursor-pointer hover:stroke-blue-500"
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
         data-node-id="glucose"
         data-node-type="simpleChemical"
-
+        
       >
-
-      <circle
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
         cx="400"
         cy="120"
-        r="25"
-        fill="#FFFFFF"
-        stroke="#333333"
+        rx="90"
+        ry="25"
+        fill="white"
+        stroke="black"
         stroke-width="2"
       />
-
-
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="120"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="black"
+        stroke-width="2"
+      />
+    
+        
         <g class="sbgn-marker" data-marker-type="P">
           <circle
             cx="320"
@@ -347,7 +376,7 @@
             font-size="10"
           >P</text>
         </g>
-
+      
         <g class="sbgn-marker" data-marker-type="O">
           <circle
             cx="480"
@@ -366,8 +395,8 @@
             font-size="10"
           >O</text>
         </g>
-
-
+      
+        
       <text
         x="400"
         y="120"
@@ -378,26 +407,38 @@
         font-weight="normal"
         class="sbgn-node-label"
       >Glucose</text>
-
+    
       </g>
-
-      <g
-        class="sbgn-node sbgn-node cursor-pointer hover:stroke-blue-500"
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
         data-node-id="g6p"
         data-node-type="simpleChemical"
-
+        
       >
-
-      <circle
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
         cx="400"
         cy="360"
-        r="25"
-        fill="#FFFFFF"
-        stroke="#333333"
+        rx="90"
+        ry="25"
+        fill="white"
+        stroke="black"
         stroke-width="2"
       />
-
-
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="360"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="black"
+        stroke-width="2"
+      />
+    
+        
         <g class="sbgn-marker" data-marker-type="P">
           <circle
             cx="320"
@@ -416,7 +457,7 @@
             font-size="10"
           >P</text>
         </g>
-
+      
         <g class="sbgn-marker" data-marker-type="P">
           <circle
             cx="480"
@@ -435,7 +476,7 @@
             font-size="10"
           >P</text>
         </g>
-
+      
         <g class="sbgn-marker" data-marker-type="O">
           <circle
             cx="320"
@@ -454,8 +495,8 @@
             font-size="10"
           >O</text>
         </g>
-
-
+      
+        
       <text
         x="400"
         y="360"
@@ -466,26 +507,38 @@
         font-weight="normal"
         class="sbgn-node-label"
       >Glucose-6-Phosphate</text>
-
+    
       </g>
-
-      <g
-        class="sbgn-node sbgn-node cursor-pointer hover:stroke-blue-500"
+    
+      <g 
+        class="sbgn-node cursor-pointer hover:stroke-blue-500"
         data-node-id="f6p"
         data-node-type="simpleChemical"
-
+        
       >
-
-      <circle
+        
+      <!-- Outer ellipse for simple chemical -->
+      <ellipse
         cx="400"
         cy="600"
-        r="25"
-        fill="#FFFFFF"
-        stroke="#333333"
+        rx="90"
+        ry="25"
+        fill="white"
+        stroke="black"
         stroke-width="2"
       />
-
-
+      <!-- Inner ellipse - SBGN convention for simple chemicals -->
+      <ellipse
+        cx="400"
+        cy="600"
+        rx="85"
+        ry="20"
+        fill="none"
+        stroke="black"
+        stroke-width="2"
+      />
+    
+        
         <g class="sbgn-marker" data-marker-type="P">
           <circle
             cx="320"
@@ -504,7 +557,7 @@
             font-size="10"
           >P</text>
         </g>
-
+      
         <g class="sbgn-marker" data-marker-type="O">
           <circle
             cx="480"
@@ -523,7 +576,7 @@
             font-size="10"
           >O</text>
         </g>
-
+      
         <g class="sbgn-marker" data-marker-type="P">
           <circle
             cx="480"
@@ -542,8 +595,8 @@
             font-size="10"
           >P</text>
         </g>
-
-
+      
+        
       <text
         x="400"
         y="600"
@@ -554,8 +607,8 @@
         font-weight="normal"
         class="sbgn-node-label"
       >Fructose-6-Phosphate</text>
-
+    
       </g>
-
-        </g>
-      </svg>
+    
+  </g>
+</svg>

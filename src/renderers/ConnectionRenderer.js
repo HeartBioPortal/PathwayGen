@@ -298,6 +298,7 @@ class ConnectionRenderer {
       const intermediatePos = positions.get(intermediateKey);
       if (!intermediatePos) return '';
 
+      // Following original pathway_original.js implementation
       return connection.enzymes.map((enzyme, eIdx) => {
         if (eIdx % 2 !== 0) return ''; // Skip odd indices to handle pairs
         
@@ -312,13 +313,18 @@ class ConnectionRenderer {
           ...(connection.style || {})
         };
         
+        // The box size is vital for correct connection points
+        const boxSize = this.config.layout.enzymeBoxSize;
+        const halfBox = boxSize / 2;
+        
         // Condition for straight connections and right angle connections
+        // Following the original implementation's angle handling
         if (!connection.angle || connection.angle > 0) {
           return `
             <path
-              d="M ${enzyme1Pos.x - 30} ${enzyme1Pos.y}
+              d="M ${enzyme1Pos.x + halfBox} ${enzyme1Pos.y}
                  L ${intermediatePos.x + 11} ${intermediatePos.y}
-                 L ${enzyme2Pos.x - 30} ${enzyme2Pos.y}"
+                 L ${enzyme2Pos.x + halfBox} ${enzyme2Pos.y}"
               fill="none"
               stroke="${style.stroke}"
               stroke-width="${style.strokeWidth}"
@@ -329,9 +335,9 @@ class ConnectionRenderer {
         } else {
           return `
             <path
-              d="M ${enzyme1Pos.x + 30} ${enzyme1Pos.y}
+              d="M ${enzyme1Pos.x - halfBox} ${enzyme1Pos.y}
                  L ${intermediatePos.x - 11} ${intermediatePos.y}
-                 L ${enzyme2Pos.x + 30} ${enzyme2Pos.y}"
+                 L ${enzyme2Pos.x - halfBox} ${enzyme2Pos.y}"
               fill="none"
               stroke="${style.stroke}"
               stroke-width="${style.strokeWidth}"
