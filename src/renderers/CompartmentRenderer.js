@@ -54,15 +54,6 @@ class CompartmentRenderer {
       const y2 = pos.y + this.config.compartments.lineSpacing;
       
       return `
-        <!-- Gradient definition -->
-        <defs>
-          <linearGradient id="gradient-${compartmentId}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${style.color}" stop-opacity="0"/>
-            <stop offset="50%" stop-color="${style.color}" stop-opacity="${style.opacity}"/>
-            <stop offset="100%" stop-color="${style.color}" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-  
         <g 
           class="sbgn-compartment" 
           data-compartment-id="${compartmentId}"
@@ -75,10 +66,10 @@ class CompartmentRenderer {
                L ${width} ${pos.y + 100}
                L 0 ${pos.y + 100}
                Z"
-            fill="url(#gradient-${compartmentId})"
+            fill="url(#global-compartment-gradient)"
           />
           
-          <!-- Double arc lines -->
+          <!-- Double arc lines - adapted from original implementation -->
           <path
             d="M 0 ${pos.y} 
                Q ${width/2} ${pos.y - arcHeight} ${width} ${pos.y}"
