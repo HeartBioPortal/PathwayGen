@@ -5,97 +5,124 @@
 
 const defaultConfig = {
     // Layout configuration
-    width: 800,
-    height: 1600,
-    nodeWidth: 180,
-    nodeHeight: 50,
-    verticalSpacing: 120,
-    horizontalSpacing: 140,
-    enzymeBoxSize: 60,
-    intermediateBoxSize: 20,
-    markerRadius: 8,
-    defaultBranchAngle: 30,
-    defaultBranchLength: 200,
-    padding: 20,
-    autoResize: true,
+    layout: {
+      width: 800,
+      height: 1600,
+      nodeWidth: 180,
+      nodeHeight: 70,  // Increased height for better text fitting
+      verticalSpacing: 120,
+      horizontalSpacing: 140,
+      enzymeBoxSize: 60,
+      intermediateBoxSize: 20,
+      markerRadius: 8,
+      defaultBranchAngle: 30,
+      defaultBranchLength: 200,
+      padding: 20,
+      autoResize: true,
+    },
     
     // Compartment configuration
-    compartmentLineSpacing: 10,
-    compartmentLabelOffset: 30,
-    compartmentCurveControl: 50,
-    compartmentOpacity: 0.3,
-    compartmentBorderRadius: 10,
+    compartments: {
+      lineSpacing: 10,
+      labelOffset: 30,
+      curveControl: 50,
+      opacity: 0.3,
+      borderRadius: 10,
+    },
     
-    // Node styles
-    nodeFill: '#FFFFFF',
-    nodeStroke: '#333333',
-    nodeStrokeWidth: 2,
-    nodeClassName: 'sbgn-node cursor-pointer hover:stroke-blue-500',
-    nodeLabelFontSize: 12,
-    nodeLabelFontFamily: 'Arial, sans-serif',
-    nodeLabelFontWeight: 'normal',
-    nodeCornerRadius: 0,
-    nodeDropShadow: false,
-    nodeInnerStroke: true,
-    
-    // Connection styles
-    connectionStroke: '#333333',
-    connectionStrokeWidth: 2,
-    connectionClassName: 'sbgn-connection',
-    connectionDashArray: '',
-    connectionArrowSize: 10,
-    connectionCurve: 'linear',
-    connectionLabelFontSize: 10,
-    connectionLabelDistance: 10,
-    
-    // Enzyme styles
-    enzymeFill: '#FFFFFF',
-    enzymeStroke: '#333333',
-    enzymeStrokeWidth: 2,
-    enzymeClassName: 'sbgn-enzyme cursor-pointer hover:stroke-blue-500',
-    enzymeLabelFontSize: 10,
-    enzymeCornerRadius: 0,
-    
-    // Marker styles
-    markerPColor: '#FFD700', // phosphate - gold
-    markerOColor: '#FF4444', // oxygen - red
-    markerSColor: '#33CC33', // sulfur - green
-    markerNColor: '#6666FF', // nitrogen - blue
-    markerFontWeight: 'bold',
-    markerFontSize: 10,
-    
-    // Compartment styles
-    compartmentDefaultColor: '#CCCCCC',
-    compartmentStrokeOpacity: 0.8,
-    compartmentFontWeight: 'bold',
-    compartmentFontSize: 14,
-    
-    // DNA styles
-    dnaStrand1Color: '#4299E1',
-    dnaStrand2Color: '#805AD5',
-    dnaStrokeWidth: 2,
-    dnaWaveHeight: 20,
-    dnaWaveCount: 3,
-    
-    // RNA styles
-    rnaStrandColor: '#C05621',
-    rnaStrokeWidth: 2,
-    rnaWaveHeight: 15,
-    rnaWaveCount: 4,
+    // Styles for different elements
+    styles: {
+      // Node styles
+      node: {
+        fill: '#FFFFFF',
+        stroke: '#333333',
+        strokeWidth: 2,
+        className: 'sbgn-node cursor-pointer hover:stroke-blue-500',
+        labelFontSize: 12,
+        labelFontFamily: 'Arial, sans-serif',
+        labelFontWeight: 'normal',
+        cornerRadius: 0,
+        dropShadow: false,
+        innerStroke: true,
+      },
+      
+      // Connection styles
+      connection: {
+        stroke: '#333333',
+        strokeWidth: 2,
+        className: 'sbgn-connection',
+        dashArray: '',
+        arrowSize: 10,
+        curve: 'linear',
+        labelFontSize: 10,
+        labelDistance: 10,
+      },
+      
+      // Enzyme styles
+      enzyme: {
+        fill: '#FFFFFF',
+        stroke: '#333333',
+        strokeWidth: 2,
+        className: 'sbgn-enzyme cursor-pointer hover:stroke-blue-500',
+        labelFontSize: 10,
+        cornerRadius: 0,
+      },
+      
+      // Marker styles
+      marker: {
+        colors: {
+          P: '#FFD700', // phosphate - gold
+          O: '#FF4444', // oxygen - red
+          S: '#33CC33', // sulfur - green
+          N: '#6666FF'  // nitrogen - blue
+        },
+        fontWeight: 'bold',
+        fontSize: 10,
+      },
+      
+      // Compartment styles
+      compartment: {
+        defaultColor: '#CCCCCC',
+        strokeOpacity: 0.8,
+        fontWeight: 'bold',
+        fontSize: 14,
+      },
+      
+      // DNA styles
+      dna: {
+        strand1Color: '#4299E1',
+        strand2Color: '#805AD5',
+        strokeWidth: 2,
+        waveHeight: 20,
+        waveCount: 3,
+      },
+      
+      // RNA styles
+      rna: {
+        strandColor: '#C05621',
+        strokeWidth: 2,
+        waveHeight: 15,
+        waveCount: 4,
+      },
+    },
     
     // Animation configuration
-    animationEnabled: false,
-    animationDuration: 500,
-    animationEasing: 'ease-in-out',
+    animation: {
+      enabled: false,
+      duration: 500,
+      easing: 'ease-in-out',
+    },
     
     // Interaction configuration
-    enableZoom: true,
-    enablePan: true,
-    enableTooltips: true,
-    enableHighlight: true,
-    highlightColor: '#3182CE',
-    highlightOpacity: 0.3,
-    tooltipDelay: 500
+    interaction: {
+      enableZoom: true,
+      enablePan: true,
+      enableTooltips: true,
+      enableHighlight: true,
+      highlightColor: '#3182CE',
+      highlightOpacity: 0.3,
+      tooltipDelay: 500,
+    }
   };
   
   // SBGN specific entity styles
