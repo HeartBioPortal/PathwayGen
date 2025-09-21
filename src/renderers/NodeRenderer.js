@@ -2,6 +2,9 @@
  * Node Renderer for pathway visualizations
  * Renders different types of nodes based on SBGN specification
  */
+
+const { getNodeAriaLabel, getAriaAttributesString, getSvgTitleString } = require("../accessibility/utils.js");
+
 const { SpecialElementRenderers } = require('./SpecialElements');
 
 class NodeRenderer {
@@ -73,7 +76,13 @@ class NodeRenderer {
     
     // Generate node label
     const label = this.renderNodeLabel(node, position);
-    
+
+    const ariaLabel = getNodeAriaLabel(node);
+    const ariaAttrs = getAriaAttributesString({
+      label: ariaLabel,
+      description: node.description || node.info
+    });
+    const title = getSvgTitleString(ariaLabel);
     // Generate node group with data attributes
     return `
       <g 
@@ -81,7 +90,9 @@ class NodeRenderer {
         data-node-id="${node.id}"
         data-node-type="${node.entityType || 'default'}"
         ${style.dropShadow ? 'filter="url(#dropShadow)"' : ''}
+        ${ariaAttrs}
       >
+        ${title}
         ${nodeShape}
         ${markers}
         ${label}
